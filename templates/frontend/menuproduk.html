@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Produk</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/menuproduk.css') }}">
+</head>
+<body>
+    <div class="product-menu">
+        <P>paris</P>
+        {% for product in products %}
+        <div class="product-card">
+            <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}" class="product-image">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p class="product-price">Rp {{ "{:,.0f}".format(product.price) }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
