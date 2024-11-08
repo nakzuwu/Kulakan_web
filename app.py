@@ -15,7 +15,7 @@ mail = Mail(app)
 s = URLSafeTimedSerializer(app.secret_key)
 
 # Konfigurasi MySQL Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://C7CP:S.Tr.Kom2024@194.31.53.102:3306/C7CP'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://C7CP:S.Tr.Kom2024@194.31.53.102:3306/C7CP'
 
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
