@@ -6,7 +6,8 @@
     <title>Kulakan</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">       
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">      
     <link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
 </head>
 <body>
@@ -14,7 +15,7 @@
         <div class="logo">Kulakan.</div>
         <nav>
             <a href="#">Home</a>
-            <a href="#">Products</a>
+            <a href="{{ url_for('menuproduk') }}">Products</a>
             <a href="#">Sales</a>
             <a href="#">Contact</a>
         </nav>
@@ -152,5 +153,37 @@
         <p>&copy; 2024 Kulakan. Semua Hak Cipta Dilindungi.</p>
     </div>
 </footer>
+<!-- chatbot -->
+<section class="offers">
+        <div class="chatbot-icon" onclick="openChatbot()">
+            <i class="fas fa-comment"></i>
+        </div>
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header">
+                <h3>Botti</h3>
+                <button onclick="closeChatbot()">✕</button>
+            </div>
+            <div class="chatbot-messages">
+                <div class="message bot">Halo! Ada yang bisa saya bantu?</div>
+                <!-- Tambahkan elemen pesan lain sesuai kebutuhan -->
+            </div>
+            <div class="chatbot-input">
+                <input type="text" placeholder="Tulis pesan Anda...">
+                <button>Kirim</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function openChatbot() {
+        document.getElementById("chatbotWindow").style.display = "flex";
+    }
+
+    function closeChatbot() {
+        document.getElementById("chatbotWindow").style.display = "none";
+    }
+</script>
+<!-- chatbot -->
 </body>
 </html>

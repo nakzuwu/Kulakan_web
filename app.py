@@ -61,9 +61,17 @@ def forgot_password():
 def password_reset_sent():
     return "Instruksi reset password telah dikirim ke email Anda."
 
-@app.route('/admin')
-def admin():
-    return render_template('admin/admin.html')
+@app.route('/admin/dashboard')
+def dashboard():
+    return render_template('admin/dashboard.html')
+
+@app.route('/admin/addproduk')
+def addproduk():
+    return render_template('admin/addproduk.html')
+
+@app.route('/frontend/menuproduk')
+def menuproduk():
+    return render_template('frontend/menuproduk.html')
 
 
 if __name__ == '__main__':
