@@ -26,7 +26,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = 'enkajet439@gmail.com'
-app.config['MAIL_PASSWORD'] = 'vnaz uknm fyrf mstj'  # Ganti dengan App Password
+app.config['MAIL_PASSWORD'] = 'aw'  # Ganti dengan App Password
 app.config['MAIL_DEFAULT_SENDER'] = 'enkajet439@gmail.com'
 
 
