@@ -5,7 +5,7 @@ from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
 import os
 from werkzeug.utils import secure_filename
-from flask import current_app
+from form import ProfileForm
 
 UPLOAD_FOLDER = 'static/profile_photos'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -48,11 +48,16 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    address = db.Column(db.String(255), nullable=True)
+    profile_photo = db.Column(db.String(100), nullable=True, default='default.jpg')  # Default photo
 
-    def __init__(self, name, email, password):
+    def __init__(self, name, email, password, address=None, profile_photo='default.jpg'):
         self.name = name
         self.email = email
         self.password = password
+        self.address = address
+        self.profile_photo = profile_photo
+
 
 # Inisialisasi Database
 with app.app_context():
@@ -163,38 +168,39 @@ def logout():
     flash('Anda telah logout.', 'info')
     return redirect(url_for('login'))
 
-@app.route('/profile_settings', methods=['GET', 'POST'])
-def profile_settings():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))  # Redirect if user is not logged in
+# @app.route('/profile_settings', methods=['GET', 'POST'])
+# def profile_settings():
+#     form = ProfileForm()
+#     user = User.query.get(session['user_id'])  # Assuming user_id is in session
     
-    user = User.query.get(session['user_id'])
-    
-    if request.method == 'POST':
-        # Update user details
-        user.name = request.form.get('name', user.name)
-        user.address = request.form.get('address', user.address)
-        new_password = request.form.get('password')
-        if new_password:
-            user.password = generate_password_hash(new_password)
+#     if request.method == 'POST' and form.validate_on_submit():
+#         user.name = form.name.data
+#         user.email = form.email.data
+#         user.address = form.address.data
         
-        # Handle profile photo upload
-        profile_picture = request.files.get('photo')
-        if profile_picture:
-            profile_picture.save(os.path.join('static', 'uploads', f'{user.id}_profile.jpg'))
-            user.profile_picture = f'{user.id}_profile.jpg'
+#         # Handle profile picture upload
+#         if form.profile_picture.data:
+#             file = form.profile_picture.data
+#             filename = secure_filename(file.filename)
+#             file.save(os.path.join('static/uploads', filename))  # Save to static/uploads folder
+#             user.profile_picture = filename
+        
+#         db.session.commit()
+#         flash('Profile updated successfully', 'success')
+#         return redirect(url_for('profile'))
 
-        db.session.commit()
-        flash('Profile updated successfully!', 'success')
-        return redirect(url_for('profile_settings'))
+#     # Prefill the form with current user data
+#     form.name.data = user.name
+#     form.email.data = user.email
+#     form.address.data = user.address
 
-    return render_template('profile_settings.html', user=user)
+#     return render_template('profile_settings.html', form=form, user=user)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/profile', methods=['GET', 'POST'])
-def profile():
+@app.route('/profile_settings', methods=['GET', 'POST'])
+def profile_settings():
     if 'user_id' not in session:
         flash('You need to log in first.', 'danger')
         return redirect(url_for('login'))
@@ -220,14 +226,14 @@ def profile():
 
         db.session.commit()
         flash('Profile updated successfully!', 'success')
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile_settings'))
 
     # Prepopulate the form with current data
     form.name.data = user.name
     form.email.data = user.email
     form.address.data = user.address
 
-    return render_template('profile.html', form=form, user=user)
+    return render_template('profile_settings.html', form=form, user=user)
 
 @app.route('/test_email')
 def test_email():
