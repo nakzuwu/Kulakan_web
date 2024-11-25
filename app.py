@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -15,7 +15,9 @@ mail = Mail(app)
 s = URLSafeTimedSerializer(app.secret_key)
 
 # Konfigurasi MySQL Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/kulakan'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://C7CP:S.Tr.Kom2024@194.31.53.102:3306/C7CP'
+
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -24,7 +26,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = 'enkajet439@gmail.com'
-app.config['MAIL_PASSWORD'] = 'aw'  # Ganti dengan App Password
+app.config['MAIL_PASSWORD'] = 'vnaz uknm fyrf mstj'  # Ganti dengan App Password
 app.config['MAIL_DEFAULT_SENDER'] = 'enkajet439@gmail.com'
 
 
@@ -54,78 +56,32 @@ def home():
         return render_template('index.html', user=session['user_name'])
     return redirect(url_for('login'))
 
-=======
-from flask import Flask, render_template, request, redirect, url_for
-
-app = Flask(__name__)
-
-# Route untuk halaman registrasi
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        # Ambil data dari form
-        name = request.form.get('name')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        
-        # Logika untuk menyimpan data ke database atau validasi bisa ditambahkan di sini
-
-        # Setelah berhasil mendaftar, arahkan pengguna ke halaman sukses atau login
-        return redirect(url_for('register_success'))  # misalnya ke halaman sukses
-
-    # Tampilkan halaman registrasi
-    return render_template('auth/register.html')
-
-# Route untuk halaman sukses registrasi
-@app.route('/register_success')
-def register_success():
-    return "Registrasi berhasil!"
-
-# Route untuk halaman login
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        # Ambil data dari form login
-        email = request.form.get('email')
-        password = request.form.get('password')
-        
-        # Tambahkan logika autentikasi di sini jika diperlukan
-
-        # Setelah login berhasil, arahkan pengguna ke halaman lain
-        return redirect(url_for('home'))  # misalnya ke halaman home
-
-    # Tampilkan halaman login
-    return render_template('auth/login.html')
-
-# Route untuk halaman lupa password
->>>>>>> 1acf6e6 (first commit)
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
         email = request.form.get('email')
-<<<<<<< HEAD
         user = User.query.filter_by(email=email).first()
         if user:
-            # Buat token reset password
-            token = s.dumps(email, salt='password-reset-salt')
-            reset_url = url_for('reset_password', token=token, _external=True)
+            try:
+                # Buat token reset password
+                token = s.dumps(email, salt='password-reset-salt')
+                reset_url = url_for('reset_password', token=token, _external=True)
 
-            # Kirim email berisi link reset password
-            msg = Message('Reset Password', recipients=[email])
-            msg.body = f'Klik link berikut untuk reset password Anda: {reset_url}'
-            mail.send(msg)
+                # Kirim email berisi link reset password
+                msg = Message('Reset Password', recipients=[email])
+                msg.body = f'Klik link berikut untuk reset password Anda: {reset_url}'
+                mail.send(msg)
 
-            flash('Instruksi reset password telah dikirim ke email Anda.', 'info')
+                flash('Instruksi reset password telah dikirim ke email Anda.', 'info')
+            except Exception as e:
+                # Log error
+                flash(f'Gagal mengirim email: {e}', 'danger')
+                print(f"Error: {e}")
         else:
             flash('Email tidak ditemukan.', 'danger')
         return redirect(url_for('forgot_password'))
     
     return render_template('auth/forgot_password.html')
-
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
@@ -156,7 +112,7 @@ def reset_password(token):
 def register():
     if request.method == 'POST':
         name = request.form.get('name')
-        email = request.form.get('email')
+        email = request.form.get('email' )
         password = request.form.get('password')
         hashed_password = generate_password_hash(password)
 
@@ -198,14 +154,6 @@ def logout():
     flash('Anda telah logout.', 'info')
     return redirect(url_for('login'))
 
-# Route untuk halaman admin (hanya jika sudah login)
-@app.route('/admin')
-def admin():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    return render_template('admin/admin.html')
-
-
 @app.route('/test_email')
 def test_email():
     try:
@@ -216,24 +164,22 @@ def test_email():
     except Exception as e:
         return f"Failed to send email: {e}"
 
-=======
-        
-        # Logika untuk proses reset password bisa ditambahkan di sini
+@app.route('/admin/dashboard')
+def dashboard():
+    return render_template('admin/dashboard.html')
 
-        return redirect(url_for('password_reset_sent'))
+@app.route('/admin/addproduk')
+def addproduk():
+    return render_template('admin/addproduk.html')
 
-    return render_template('auth/forgot_password.html')
+@app.route('/frontend/menuproduk')
+def menuproduk():
+    return render_template('frontend/menuproduk.html')
 
-# Route untuk halaman konfirmasi pengiriman reset password
-@app.route('/password_reset_sent')
-def password_reset_sent():
-    return "Instruksi reset password telah dikirim ke email Anda."
-
-@app.route('/admin')
-def admin():
-    return render_template('admin/admin.html')
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 
->>>>>>> 1acf6e6 (first commit)
 if __name__ == '__main__':
     app.run(debug=True)

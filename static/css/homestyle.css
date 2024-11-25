@@ -13,6 +13,7 @@ body::-webkit-scrollbar {
     display: none;
 }
 
+
 /* Ubah header menjadi transparan dan posisikan di atas hero */
 header {
     position: absolute; /* Agar menumpuk di atas hero */
@@ -106,6 +107,110 @@ nav a {
     margin-bottom: 20px;
 }
 
+.chatbot-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.chatbot-icon img {
+    width: 50%;
+    height: 50%;
+}
+
+
+.chatbot-window {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 300px;
+    height: 400px;
+    background-color: #f2f2f2;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.chatbot-header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    font-family: 'Merriweather', serif;
+}
+
+
+.chatbot-header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.chatbot-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 12px;
+    font-family: 'Poppins', serif;
+}
+
+.message {
+    padding: 8px;
+    border-radius: 15px;
+    max-width: 80%;
+}
+
+.bot {
+    background-color: #d3d3d3;
+    align-self: flex-start;
+}
+
+.chatbot-input {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.chatbot-input input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+}
+
+.chatbot-input button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    margin-left: 8px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
 .trending-products {
     padding-top: 40px;
     padding-bottom: 40px;
@@ -193,7 +298,6 @@ nav a {
     text-align: justify;
 }
 
-
 .promotion {
     text-align: center;
     padding: 20px;
@@ -202,7 +306,7 @@ nav a {
 }
 
 .promotion h2 {
-    color: #004600; /* Warna hijau untuk judul */
+    color: #004600;
     font-family: 'Merriweather', serif;
     font-size: 24px;
     margin-bottom: 30px;
@@ -215,11 +319,10 @@ nav a {
 }
 
 .offer-item {
-    width: 350px; /* Sesuaikan ukuran sesuai kebutuhan */
+    width: 350px;
     height: 200px;
-    background-color: #ccc;
     position: relative;
-    overflow: hidden; /* Mencegah gambar keluar dari kotak */
+    overflow: hidden;
     border-radius: 8px;
 }
 
@@ -227,27 +330,25 @@ nav a {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: scale(1.1); /* Zoom sedikit pada gambar */
+    
 }
 
 .offer-text {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Latar belakang semi-transparan */
-    color: white;
+    bottom: 0%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Memindahkan teks ke tengah */
+    color: #ffffff;
     padding: 10px;
-    font-size: 14px;
+    font-size: 30px;
+    font-family: 'Poppins', serif;
+    font-weight: 900;
     text-align: center;
-    box-sizing: border-box;
+    box-sizing: inherit;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
 }
-.offer-item p {
-    margin-top: 10px;
-    font-size: 14px;
-}
+
 
 .limited-offer {
     display: flex;
@@ -267,17 +368,27 @@ nav a {
     z-index: 1; /* Memastikan teks di atas */
     margin-left: 30px;
 }
+.text-box text{
+    margin-left: 50px;
+}
 
 .text-box h2 {
     font-family: 'Merriweather', serif;
     font-size: 24px;
     margin-bottom: 10px;
     color: #2f4f2f;
+    margin-left: 50px;
 }
 
 .text-box p {
     font-size: 16px;
     color: #2f4f2f;
+    margin-left: 50px;
+}
+.text-box h3{
+    font-size: 14px;
+    font-style: italic;
+    margin-left: 50px;
 }
 
 .image-box {

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/product.css') }}">
+</head>
+<body>
+    <header>
+        <h1>{{ product.name }}</h1>
+        <p><strong>Harga:</strong> <span class="original-price">Rp {{ product.price | int }}</span> 
+        <span class="discounted-price">Rp {{ product.discounted_price | int }}</span></p>
+        <p>⭐ {{ product.rating }} | {{ product.reviews }} Ulasan</p>
+    </header>
+
+    <div class="product-container">
+        <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" class="product-image">
+        
+        <div class="product-details">
+            <h2>Highlights:</h2>
+            <ul>
+                {% for highlight in product.highlights %}
+                <li>{{ highlight }}</li>
+                {% endfor %}
+            </ul>
+            
+            <h2>Deskripsi Produk:</h2>
+            <p>{{ product.description }}</p>
+
+            <h2>Spesifikasi:</h2>
+            <ul>
+                {% for spec, value in product.specifications.items() %}
+                <li><strong>{{ spec }}:</strong> {{ value }}</li>
+                {% endfor %}
+            </ul>
+            
+            <button class="cta-button">Beli Sekarang</button>
+        </div>
+    </div>
+</body>
+</html>

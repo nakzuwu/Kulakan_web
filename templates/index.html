@@ -1,156 +1,193 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kulakan</title>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Kulakan</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">       
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
-</head>
-<body>
-    <header>
-        <div class="logo">Kulakan.</div>
-        <nav>
-            <a href="#">Home</a>
-            <a href="#">Products</a>
-            <a href="#">Sales</a>
-            <a href="#">Contact</a>
-        </nav>
-        <button class="sign-in" onclick="window.location.href='login'">Sign in</button>
+        <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"> 
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">      
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+    </head>
+    <body>
+        <header>
+            <div class="logo">Kulakan.</div>
+            <nav>
+                <a href="#">Home</a>
+                <a href="{{ url_for('menuproduk') }}">Produk</a>
+                <a href="#">Riwayat</a>
+                <a href="#">Akun</a>
+            </nav>
+            <button class="sign-in" onclick="window.location.href='login'">Sign in</button>
 
-    </header>
+        </header>
 
-    <section class="hero">
-        <img src="{{ url_for('static', filename='asset/image/bg.jpg') }}" alt="Hero Background" class="hero-background">
-        <div class="hero-text">
-            <h1>Kulak Sembako<br>Mudah, Cepat, dan<br>Terpercaya</h1>
-            <p>Semua Kebutuhan Harian Anda, Langsung<br>
-                di Depan Pintu!</p>
-        </div>
-        <div class="hero-image">
-            <img src="{{ url_for('static', filename='asset/image/cart.png') }}" alt="Cartbg">
-        </div>
-    </section>
-    
-
-
-    <section class="trending-products">
-        <h2>Paling Banyak Dicari</h2>
-        <div class="product-grid">
-            <div class="product-item">                
-                <img src="{{ url_for('static', filename='asset/image/beras.jpg') }}" alt="Cartbg">
+        <section class="hero">
+            <img src="{{ url_for('static', filename='asset/image/bg.jpg') }}" alt="Hero Background" class="hero-background">
+            <div class="hero-text">
+                <h1>Kulak Sembako<br>Mudah, Cepat, dan<br>Terpercaya</h1>
+                <p>Semua Kebutuhan Harian Anda, Langsung<br>
+                    di Depan Pintu!</p>
             </div>
-            <div class="product-item">
-                <img src="{{ url_for('static', filename='asset/image/beras.jpg') }}" alt="Cartbg">
-                
+            <div class="hero-image">
+                <img src="{{ url_for('static', filename='asset/image/cart.png') }}" alt="Cartbg">
             </div>
-            <div class="product-item">
-                <img src="{{ url_for('static', filename='asset/image/beras.jpg') }}" alt="Cartbg">
-               
-            </div>
-            <div class="product-item">
-                <img src="{{ url_for('static', filename='asset/image/beras.jpg') }}" alt="Cartbg">
-                
-            </div>
-        </div>
-        <div class="description">
-            <div class="image-placeholder"></div>
-            <div class="text-content">
-                <h3>Apa Itu Kulakan</h3>
-                <p>Kulakan adalah aplikasi marketplace yang menyediakan berbagai kebutuhan sembako dengan harga bersaing, ditujukan khusus untuk membantu UMKM (Usaha Mikro, Kecil, dan Menengah) dalam menjalankan bisnis mereka. Melalui aplikasi Kulakan, para pelaku UMKM dapat dengan mudah membeli sembako berkualitas, mulai dari bahan pokok hingga kebutuhan lainnya, dengan harga yang terjangkau. Aplikasi ini juga menawarkan kemudahan dalam transaksi dan pengelolaan stok barang, sehingga UMKM bisa lebih fokus pada pengembangan usaha mereka. Kulakan memberikan solusi untuk meningkatkan efisiensi dan daya saing bisnis kecil dengan memanfaatkan platform digital.</p>
-            </div>
-        </div>
+        </section>
         
-    </section>
-    
 
-    <section class="promotion">
-        <div class="promotion-text">
-            <h2>Penawaran Terbatas</h2>
-        </div>
-        <div class="promotion-offers">
-            <div class="offer-item">
-                <img src="{{ url_for('static', filename='asset/image/beras1.jpg') }}" alt="Cartbg">
-                <p>Deskripsi Penawaran 1</p>
-            </div>
-            <div class="offer-item">
-                <img src="{{ url_for('static', filename='asset/image/minyak.jpg') }}" alt="Cartbg">
-                <p>Deskripsi Penawaran 2</p>
-            </div>
-            <div class="offer-item">
-                <img src="{{ url_for('static', filename='asset/image/tepung.jpg') }}" alt="Cartbg">
-                <p>Deskripsi Penawaran 3</p>
-            </div>
-        </div>
-    </section>
-    
-    <section class="limited-offer">
-        <div class="text-box">
-            <h2>Penawaran Terbatas</h2>
-            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry, but also the leap into electronic.</p>
-        </div>
-        <div class="image-box"></div>
-    </section>
-    
-<!-- Bagian Blog -->
-<section class="blog">
-    <div class="blog-title">
-        <h2>Artikel Terbaru</h2>
-        <p>Temukan informasi terbaru dan tips menarik seputar produk dan layanan kami.</p>
-    </div>
-    <div class="blog-content">
-        <article class="blog-post">
-            <h3>Tips Memilih Beras Berkualitas</h3>
-            <p>Beras adalah bahan pokok utama. Dalam artikel ini, kami akan memberikan tips untuk memilih beras yang berkualitas agar Anda bisa menyajikan hidangan terbaik untuk keluarga.</p>
-            <a href="#">Baca Selengkapnya</a>
-        </article>
-        <article class="blog-post">
-            <h3>Manfaat Minyak Kelapa untuk Kesehatan</h3>
-            <p>Minyak kelapa memiliki banyak manfaat untuk kesehatan. Temukan informasi lengkap mengenai manfaat dan cara penggunaan minyak kelapa dalam kehidupan sehari-hari.</p>
-            <a href="#">Baca Selengkapnya</a>
-        </article>
-        <article class="blog-post">
-            <h3>Kelebihan Tepung Terigu Organik</h3>
-            <p>Tepung terigu organik menjadi pilihan yang lebih sehat. Pelajari lebih lanjut mengenai manfaat tepung terigu organik dalam artikel ini.</p>
-            <a href="#">Baca Selengkapnya</a>
-        </article>
-    </div>
-</section>
 
-<!-- Bagian Footer -->
-<footer class="footer">
-    <div class="footer-content">
-        <div class="footer-section about">
-            <h2>Kulakan</h2>
-            <p>Tugas Capstone 2024</p>
-            <p>Moh Fariz - 22090091</p>
-            <p>Reyhan Uegene Sayhputra - 22090091</p>
-            <p>Mohamad Farhan Mukharom - 22090091</p>
-            <p>Hafidz Rahmatullah - 22090091</p>
+        <section class="trending-products">
+            <h2>Paling Banyak Dicari</h2>
+            <div class="product-grid">
+                <div class="product-item">                
+                    <img src="{{ url_for('static', filename='asset/image/beras.jpg') }}" alt="Cartbg">
+                </div>
+                <div class="product-item">
+                    <img src="{{ url_for('static', filename='asset/image/minyak1.jpg') }}" alt="Cartbg">
+                    
+                </div>
+                <div class="product-item">
+                    <img src="{{ url_for('static', filename='asset/image/download.jpg') }}" alt="Cartbg">
+                
+                </div>
+                <div class="product-item">
+                    <img src="{{ url_for('static', filename='asset/image/gula.jpg') }}" alt="Cartbg">
+                    
+                </div>
+            </div>
+            <div class="description">
+                <div class="image-placeholder"></div>
+                <div class="text-content">
+                    <h3> PROMO SPESIAL!</h3>
+                    <p>Hanya untuk waktu terbatas, nikmati harga lebih terjangkau untuk pembelian tepung Segitiga Biru di toko kami dan berbagai platform belanja online! Jangan lewatkan penawaran menarik ini untuk stok tepung segar yang akan mempermudah setiap persiapan masakan atau kue Anda.</p>
+                </div>
+            </div>
+            
+        </section>
+        
+
+        <section class="promotion">
+            <div class="promotion-text">
+                <h2>Penawaran Terbatas</h2>
+            </div>
+            <div class="promotion-offers">
+                <div class="offer-item">
+                    <img src="{{ url_for('static', filename='asset/image/beras1.jpg') }}" alt="Cartbg">
+                    <div class="offer-text">Diskon 15%</div>
+                </div>
+                <div class="offer-item">
+                    <img src="{{ url_for('static', filename='asset/image/minyak.jpg') }}" alt="Cartbg">
+                    <div class="offer-text">Gratis<br>Ongkir</div>
+                </div>
+                <div class="offer-item">
+                    <img src="{{ url_for('static', filename='asset/image/tepung.jpg') }}" alt="Cartbg">
+                    <div class="offer-text">Beli 1<br>Gratis 1</div>
+                </div>
+            </div>
+        </section>
+        
+        
+        <section class="limited-offer">
+            <div class="text-box">
+                <h2>Qoute of the day</h2>
+                <p>"Menghubungkan usaha kecil dengan peluang besar,</p>
+                <p>satu sembako di setiap langkah.".</p>
+                <h3>-Founder Kulakan.</h3>
+            </div>
+            <div class="image-box"></div>
+        </section>
+        
+    <!-- Bagian Blog -->
+    <section class="blog">
+        <div class="blog-title">
+            <h2>Artikel Terbaru</h2>
+            <p>Temukan informasi terbaru dan tips menarik seputar produk dan layanan kami.</p>
         </div>
-        <div class="footer-section links">
-            <h3>Links</h3>
-            <ul>
-                <li><a href="#">Tentang Kami</a></li>
-                <li><a href="#">Layanan</a></li>
-                <li><a href="#">Kontak</a></li>
-                <li><a href="#">FAQ</a></li>
-            </ul>
+        <div class="blog-content">
+            <article class="blog-post">
+                <h3>Tips Memilih Beras Berkualitas</h3>
+                <p>Beras adalah bahan pokok utama. Dalam artikel ini, kami akan memberikan tips untuk memilih beras yang berkualitas agar Anda bisa menyajikan hidangan terbaik untuk keluarga.</p>
+                <a href="https://www.rri.co.id/lain-lain/975883/cara-memilih-beras-yang-baik-untuk-dikonsumsi#:~:text=Beras%20seharusnya%20bersih%20dan%20bebas,menunjukkan%20kualitas%20yang%20kurang%20baik.&text=Kemasan%3A%20Pastikan%20kemasan%20dalam%20kondisi%20baik%2C%20tanpa%20robekan%20atau%20kerusakan.">Baca Selengkapnya</a>
+            </article>
+            <article class="blog-post">
+                <h3>Manfaat Minyak Kelapa untuk Kesehatan</h3>
+                <p>Minyak kelapa memiliki banyak manfaat untuk kesehatan. Temukan informasi lengkap mengenai manfaat dan cara penggunaan minyak kelapa dalam kehidupan sehari-hari.</p>
+                <a href="https://www.alodokter.com/minyak-kelapa-sebagai-penyubur-rambut-itu-mitos">Baca Selengkapnya</a>
+            </article>
+            <article class="blog-post">
+                <h3>Kelebihan Tepung Terigu Organik</h3>
+                <p>Tepung terigu organik menjadi pilihan yang lebih sehat. Pelajari lebih lanjut mengenai manfaat tepung terigu organik dalam artikel ini.</p>
+                <a href="https://www.astahomeware.com/mengenal-tepung-terigu-kegunaan-dan-perbedaannya/?srsltid=AfmBOootnAMimwy1j1to4U6_YtZ-mgc736IL_9y8cv-Luf6MWH_eNApA">Baca Selengkapnya</a>
+            </article>
         </div>
-        <div class="footer-section contact-form">
-            <h3>Hubungi Kami</h3>
-            <form action="#" method="post">
-                <input type="email" name="email" placeholder="Email Anda">
-                <textarea name="message" placeholder="Pesan Anda"></textarea>
-                <button type="submit">Kirim</button>
-            </form>
+    </section>
+
+    <!-- Bagian Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section about">
+                <h2>Kulakan</h2>
+                <p>Tugas Capstone 2024</p>
+                <p>Moh Fariz - 22090091</p>
+                <p>Reyhan Uegene Sayhputra - 22090129</p>
+                <p>Mohamad Farhan Mukharom - 22090075</p>
+                <p>Hafidz Rahmatullah - 22090133</p>
+            </div>
+            <div class="footer-section links">
+                <h3>Links</h3>
+                <ul>
+                    <li><a href="#">Tentang Kami</a></li>
+                    <li><a href="#">Layanan</a></li>
+                    <li><a href="#">Kontak</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section contact-form">
+                <h3>Hubungi Kami</h3>
+                <form action="#" method="post">
+                    <input type="email" name="email" placeholder="Email Anda">
+                    <textarea name="message" placeholder="Pesan Anda"></textarea>
+                    <button type="submit">Kirim</button>
+                </form>
+            </div>
         </div>
-    </div>
-    <div class="footer-bottom">
-        <p>&copy; 2024 Kulakan. Semua Hak Cipta Dilindungi.</p>
-    </div>
-</footer>
-</body>
-</html>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Kulakan. Semua Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+    <!-- chatbot -->
+    <section class="offers">
+            <div class="chatbot-icon" onclick="openChatbot()">
+                <i class="fas fa-comment"></i>
+            </div>
+            <div class="chatbot-window" id="chatbotWindow">
+                <div class="chatbot-header">
+                    <h3>Botti</h3>
+                    <button onclick="closeChatbot()">✕</button>
+                </div>
+                <div class="chatbot-messages">
+                    <div class="message bot">Halo! Ada yang bisa saya bantu?</div>
+                    <!-- Tambahkan elemen pesan lain sesuai kebutuhan -->
+                </div>
+                <div class="chatbot-input">
+                    <input type="text" placeholder="Tulis pesan Anda...">
+                    <button>Kirim</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function openChatbot() {
+            document.getElementById("chatbotWindow").style.display = "flex";
+        }
+
+        function closeChatbot() {
+            document.getElementById("chatbotWindow").style.display = "none";
+        }
+    </script>
+    <!-- chatbot -->
+     
+    </body>
+    </html>
