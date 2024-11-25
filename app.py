@@ -1,12 +1,21 @@
-
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
+import os
+from werkzeug.utils import secure_filename
+from flask import current_app
+
+UPLOAD_FOLDER = 'static/profile_photos'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+
+# Set max content length for file uploads (5MB max)
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Inisialisasi Flask-Mail
 mail = Mail(app)
@@ -15,7 +24,7 @@ mail = Mail(app)
 s = URLSafeTimedSerializer(app.secret_key)
 
 # Konfigurasi MySQL Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://C7CP:S.Tr.Kom2024@194.31.53.102:3306/C7CP'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://C7CP:S.Tr.Kom2024@194.31.53.102:3306/C7CP'
 
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -153,6 +162,72 @@ def logout():
     session.clear()
     flash('Anda telah logout.', 'info')
     return redirect(url_for('login'))
+
+@app.route('/profile_settings', methods=['GET', 'POST'])
+def profile_settings():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))  # Redirect if user is not logged in
+    
+    user = User.query.get(session['user_id'])
+    
+    if request.method == 'POST':
+        # Update user details
+        user.name = request.form.get('name', user.name)
+        user.address = request.form.get('address', user.address)
+        new_password = request.form.get('password')
+        if new_password:
+            user.password = generate_password_hash(new_password)
+        
+        # Handle profile photo upload
+        profile_picture = request.files.get('photo')
+        if profile_picture:
+            profile_picture.save(os.path.join('static', 'uploads', f'{user.id}_profile.jpg'))
+            user.profile_picture = f'{user.id}_profile.jpg'
+
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('profile_settings'))
+
+    return render_template('profile_settings.html', user=user)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if 'user_id' not in session:
+        flash('You need to log in first.', 'danger')
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+    form = ProfileForm()
+
+    if form.validate_on_submit():
+        # Update user details
+        user.name = form.name.data
+        user.email = form.email.data
+        user.address = form.address.data
+
+        # Handle profile photo upload
+        if 'profile_photo' in request.files:
+            file = request.files['profile_photo']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                # Ensure filename is unique by adding timestamp or user ID
+                filename = f"{user.id}_{filename}"
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                user.profile_photo = filename  # Update user's profile photo
+
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('profile'))
+
+    # Prepopulate the form with current data
+    form.name.data = user.name
+    form.email.data = user.email
+    form.address.data = user.address
+
+    return render_template('profile.html', form=form, user=user)
 
 @app.route('/test_email')
 def test_email():

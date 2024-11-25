@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kulakan</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">      
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">Kulakan.</div>
+        <nav>
+            <a href="#">Home</a>
+            <a href="{{ url_for('menuproduk') }}">Produk</a>
+            <a href="#">Riwayat</a>
+            <a href="#">Akun</a>
+        </nav>
+        <div class="profile-logo">
+            <img src="{{ url_for('static', filename='profile.jpg') }}" alt="Profile Logo" onclick="window.location.href='{{ url_for('profile_settings') }}'">
+        </div>
+
+    </header>
+
+    <main>
+        <div class="profile-container">
+            <h1>Your Profile</h1>
+            <div class="profile-info">
+                <div class="profile-photo">
+                    <!-- Display user profile picture -->
+                    {% if user.profile_picture %}
+                        <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" alt="Profile Photo">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" alt="Profile Photo">
+                    {% endif %}
+                </div>
+                <div class="profile-details">
+                    <p><strong>Name:</strong> {{ user.name }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Address:</strong> {{ user.address if user.address else 'Not provided' }}</p>
+                    <a href="{{ url_for('profile_settings') }}" class="btn">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Kulakan. All rights reserved.</p>
+    </footer>
+</body>
+</html>

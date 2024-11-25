@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-# Initialize SQLAlchemy
 db = SQLAlchemy()
 
 class User(db.Model):
@@ -9,8 +9,12 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    address = db.Column(db.String(255), nullable=True)
+    profile_photo = db.Column(db.String(100), nullable=True, default='default.jpg')  # Default photo
 
-    def __init__(self, name, email, password):
+    def __init__(self, name, email, password, address=None, profile_photo='default.jpg'):
         self.name = name
         self.email = email
         self.password = password
+        self.address = address
+        self.profile_photo = profile_photo
