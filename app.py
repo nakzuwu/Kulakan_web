@@ -3,10 +3,12 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
-import os
+from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from form import ProfileForm
+import os
 import uuid
+import jwt
 
 UPLOAD_FOLDER = 'static/profile_photos'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -73,22 +75,29 @@ def forgot_password():
     if request.method == 'POST':
         email = request.form.get('email')
         user = User.query.filter_by(email=email).first()
+
         if user:
             try:
-                # Buat token reset password
-                token = s.dumps(email, salt='password-reset-salt')
+                # Create JWT token with user ID and expiration
+                token = jwt.encode(
+                    {
+                        "user_id": user.id,
+                        "exp": datetime.utcnow() + timedelta(hours=1)
+                    },
+                    app.config['SECRET_KEY'], algorithm='HS256'
+                )
+
+                # Generate the password reset link
                 reset_url = url_for('reset_password', token=token, _external=True)
 
-                # Kirim email berisi link reset password
+                # Send reset password email
                 msg = Message('Reset Password', recipients=[email])
-                msg.body = f'Klik link berikut untuk reset password Anda: {reset_url}'
+                msg.body = f'Klik tautan berikut untuk mereset password Anda: {reset_url}'
                 mail.send(msg)
 
                 flash('Instruksi reset password telah dikirim ke email Anda.', 'info')
             except Exception as e:
-                # Log error
-                flash(f'Gagal mengirim email: {e}', 'danger')
-                print(f"Error: {e}")
+                flash(f'Gagal mengirim email: {str(e)}', 'danger')
         else:
             flash('Email tidak ditemukan.', 'danger')
         return redirect(url_for('forgot_password'))
@@ -98,27 +107,44 @@ def forgot_password():
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     try:
-        email = s.loads(token, salt='password-reset-salt', max_age=3600)  # Token valid selama 1 jam
-    except (SignatureExpired, BadTimeSignature):
-        flash('Link reset password tidak valid atau sudah kedaluwarsa.', 'danger')
-        return redirect(url_for('forgot_password'))
-    
-    if request.method == 'POST':
-        new_password = request.form.get('password')
-        if len(new_password) < 6:
-            flash('Password harus minimal 6 karakter.', 'danger')
-            return redirect(url_for('reset_password', token=token))
-        
-        hashed_password = generate_password_hash(new_password)
-        user = User.query.filter_by(email=email).first()
-        if user:
-            user.password = hashed_password
+        # Decode JWT token to extract user ID
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        user = User.query.get(data['user_id'])
+
+        if not user:
+            flash('Token tidak valid atau telah kadaluarsa.', 'danger')
+            return redirect(url_for('forgot_password'))
+
+        if request.method == 'POST':
+            new_password = request.form.get('password')
+            confirm_password = request.form.get('confirm_password')
+
+            # Validate password match and length
+            if not new_password or new_password != confirm_password:
+                flash('Password tidak cocok atau kosong.', 'danger')
+                return redirect(url_for('reset_password', token=token))
+
+            if len(new_password) < 6:
+                flash('Password harus minimal 6 karakter.', 'danger')
+                return redirect(url_for('reset_password', token=token))
+
+            # Hash and update the user's password
+            user.password = generate_password_hash(new_password)
             db.session.commit()
-            flash('Password berhasil direset. Silakan login.', 'success')
+
+            flash('Password berhasil diubah. Silakan login.', 'success')
             return redirect(url_for('login'))
 
-    return render_template('auth/reset_password.html')
+        return render_template('auth/reset_password.html', token=token)
 
+    except jwt.ExpiredSignatureError:
+        flash('Token telah kadaluarsa.', 'danger')
+        return redirect(url_for('forgot_password'))
+    except jwt.InvalidTokenError:
+        flash('Token tidak valid.', 'danger')
+        return redirect(url_for('forgot_password'))
+    
+    
 # Route untuk registrasi
 @app.route('/register', methods=['GET', 'POST'])
 def register():
