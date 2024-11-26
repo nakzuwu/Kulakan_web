@@ -6,6 +6,7 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignat
 import os
 from werkzeug.utils import secure_filename
 from form import ProfileForm
+import uuid
 
 UPLOAD_FOLDER = 'static/profile_photos'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -196,6 +197,10 @@ def logout():
 
 #     return render_template('profile_settings.html', form=form, user=user)
 
+# Ensure the upload folder exists
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -218,12 +223,15 @@ def profile_settings():
         if 'profile_photo' in request.files:
             file = request.files['profile_photo']
             if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                # Ensure filename is unique by adding timestamp or user ID
-                filename = f"{user.id}_{filename}"
+                # Generate a unique filename using UUID
+                ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
+                filename = f"{uuid.uuid4().hex}.{ext}"  # Create unique filename
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                user.profile_photo = filename  # Update user's profile photo
 
+                # Update user's profile_photo in the database
+                user.profile_photo = filename
+
+        # Save other updates to the database
         db.session.commit()
         flash('Profile updated successfully!', 'success')
         return redirect(url_for('profile_settings'))

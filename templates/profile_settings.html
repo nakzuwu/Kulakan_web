@@ -19,7 +19,17 @@
             <a href="#">Akun</a>
         </nav>
         <div class="profile-logo">
-            <img src="{{ url_for('static', filename='profile.jpg') }}" alt="Profile Logo" onclick="window.location.href='{{ url_for('profile_settings') }}'">
+            <div class="profile-logo">
+                {% if user.profile_photo %}
+                    <img src="{{ url_for('static', filename='profile_photos/' + user.profile_photo) }}" 
+                         alt="Profile Logo" 
+                         onclick="window.location.href='{{ url_for('profile_settings') }}'">
+                {% else %}
+                    <img src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" 
+                         alt="Default Logo" 
+                         onclick="window.location.href='{{ url_for('profile_settings') }}'">
+                {% endif %}
+            </div>
         </div>
     </header>
 
@@ -28,13 +38,13 @@
             <h1>Your Profile</h1>
             <div class="profile-info">
                 <div class="profile-photo">
-                    <!-- Display user profile picture -->
-                    {% if user.profile_picture %}
-                        <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" alt="Profile Photo">
+                    {% if user.profile_photo %}
+                        <img src="{{ url_for('static', filename='profile_photos/' + user.profile_photo) }}" alt="Profile Photo">
                     {% else %}
-                        <img src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" alt="Profile Photo">
+                        <img src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" alt="Default Profile Photo">
                     {% endif %}
                 </div>
+                
                 <div class="profile-details">
                     <p><strong>Name:</strong> {{ user.name }}</p>
                     <p><strong>Email:</strong> {{ user.email }}</p>
