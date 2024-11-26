@@ -29,15 +29,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://C7CP:S.Tr.Kom2024@194.31.53.102
 
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = 'enkajet439@gmail.com'
 app.config['MAIL_PASSWORD'] = 'aw'  # Ganti dengan App Password
-app.config['MAIL_DEFAULT_SENDER'] = 'enkajet439@gmail.com'
+app.config['MAIL_DEFAULT_SENDER'] = 'Kulakan support<enkajet439@gmail.com>'
 
 
 db = SQLAlchemy(app)
@@ -168,34 +165,6 @@ def logout():
     session.clear()
     flash('Anda telah logout.', 'info')
     return redirect(url_for('login'))
-
-# @app.route('/profile_settings', methods=['GET', 'POST'])
-# def profile_settings():
-#     form = ProfileForm()
-#     user = User.query.get(session['user_id'])  # Assuming user_id is in session
-    
-#     if request.method == 'POST' and form.validate_on_submit():
-#         user.name = form.name.data
-#         user.email = form.email.data
-#         user.address = form.address.data
-        
-#         # Handle profile picture upload
-#         if form.profile_picture.data:
-#             file = form.profile_picture.data
-#             filename = secure_filename(file.filename)
-#             file.save(os.path.join('static/uploads', filename))  # Save to static/uploads folder
-#             user.profile_picture = filename
-        
-#         db.session.commit()
-#         flash('Profile updated successfully', 'success')
-#         return redirect(url_for('profile'))
-
-#     # Prefill the form with current user data
-#     form.name.data = user.name
-#     form.email.data = user.email
-#     form.address.data = user.address
-
-#     return render_template('profile_settings.html', form=form, user=user)
 
 # Ensure the upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
