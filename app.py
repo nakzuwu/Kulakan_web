@@ -27,7 +27,7 @@ mail = Mail(app)
 s = URLSafeTimedSerializer(app.secret_key)
 
 # Konfigurasi MySQL Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://C7CP:S.Tr.Kom2024@194.31.53.102:3306/C7CP'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'aw'
 
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -35,7 +35,7 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'enkajet439@gmail.com'
-app.config['MAIL_PASSWORD'] = 'rbpo mwwa nhpq bnza'  # Ganti dengan App Password
+app.config['MAIL_PASSWORD'] = 'aw'  # Ganti dengan App Password
 app.config['MAIL_DEFAULT_SENDER'] = 'Kulakan support<enkajet439@gmail.com>'
 
 
