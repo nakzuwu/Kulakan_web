@@ -538,3 +538,20 @@ nav a {
     border-radius: 10px; /* Optional: Rounded corners for better appearance */
     border: 2px solid #ddd; /* Optional: Adds a border */
 }
+
+.main-container {
+    padding: 80px 40px; /* Adds 80px padding above and 40px on the sides */
+}
+
+.profile-container,
+.profile-edit-container {
+    margin-bottom: 40px; /* Optional: Adds space between sections */
+}
+
+.profile-photo img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #ddd;
+}

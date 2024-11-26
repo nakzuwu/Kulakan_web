@@ -35,7 +35,7 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'enkajet439@gmail.com'
-app.config['MAIL_PASSWORD'] = 'aw'  # Ganti dengan App Password
+app.config['MAIL_PASSWORD'] = 'rbpo mwwa nhpq bnza'  # Ganti dengan App Password
 app.config['MAIL_DEFAULT_SENDER'] = 'Kulakan support<enkajet439@gmail.com>'
 
 
@@ -78,7 +78,6 @@ def forgot_password():
 
         if user:
             try:
-                # Create JWT token with user ID and expiration
                 token = jwt.encode(
                     {
                         "user_id": user.id,
@@ -143,7 +142,18 @@ def reset_password(token):
     except jwt.InvalidTokenError:
         flash('Token tidak valid.', 'danger')
         return redirect(url_for('forgot_password'))
-    
+
+
+@app.route('/test_email')
+def test_email():
+    try:
+        msg = Message('Test Email', recipients=['paangaming123@gmail.com'])
+        msg.body = 'This is a test email sent from Flask app.'
+        mail.send(msg)
+        return "Email sent successfully!"
+    except Exception as e:
+        return f"Failed to send email: {e}"
+
     
 # Route untuk registrasi
 @app.route('/register', methods=['GET', 'POST'])
@@ -237,16 +247,6 @@ def profile_settings():
     form.address.data = user.address
 
     return render_template('profile_settings.html', form=form, user=user)
-
-@app.route('/test_email')
-def test_email():
-    try:
-        msg = Message('Test Email', recipients=['paangaming123@gmail.com'])
-        msg.body = 'This is a test email sent from Flask app.'
-        mail.send(msg)
-        return "Email sent successfully!"
-    except Exception as e:
-        return f"Failed to send email: {e}"
 
 @app.route('/admin/dashboard')
 def dashboard():
