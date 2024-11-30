@@ -14,12 +14,22 @@
         <header>
             <div class="logo">Kulakan.</div>
             <nav>
-                <a href="#">Home</a>
+                <a href="{{ url_for('home') }}">Home</a>
                 <a href="{{ url_for('menuproduk') }}">Produk</a>
                 <a href="#">Riwayat</a>
-                <a href="{{ url_for('setting') }}">setting</a>
+                <a href="#">Akun</a>
             </nav>
-            <button class="sign-in" onclick="window.location.href='login'">Sign in</button>
+            <div class="profile-logo">
+                <div class="profile-logo">
+                    {% if user.profile_photo %}
+                        <img src="{{ url_for('static', filename='profile_photos/' + user.profile_photo) }}" alt="Profile Logo" onclick="window.location.href='{{ url_for('profile_settings') }}'">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" alt="Default Logo" onclick="window.location.href='{{ url_for('profile_settings') }}'">
+                    {% endif %}
+                </div>
+                <p>{{ user.name }}</p>
+            </div>
+            
 
         </header>
 
