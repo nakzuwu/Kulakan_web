@@ -13,6 +13,7 @@ body::-webkit-scrollbar {
     display: none;
 }
 
+
 /* Ubah header menjadi transparan dan posisikan di atas hero */
 header {
     position: absolute; /* Agar menumpuk di atas hero */
@@ -297,7 +298,6 @@ nav a {
     text-align: justify;
 }
 
-
 .promotion {
     text-align: center;
     padding: 20px;
@@ -306,7 +306,7 @@ nav a {
 }
 
 .promotion h2 {
-    color: #004600; /* Warna hijau untuk judul */
+    color: #004600;
     font-family: 'Merriweather', serif;
     font-size: 24px;
     margin-bottom: 30px;
@@ -319,11 +319,10 @@ nav a {
 }
 
 .offer-item {
-    width: 350px; /* Sesuaikan ukuran sesuai kebutuhan */
+    width: 350px;
     height: 200px;
-    background-color: #ccc;
     position: relative;
-    overflow: hidden; /* Mencegah gambar keluar dari kotak */
+    overflow: hidden;
     border-radius: 8px;
 }
 
@@ -331,27 +330,25 @@ nav a {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: scale(1.1); /* Zoom sedikit pada gambar */
+    
 }
 
 .offer-text {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Latar belakang semi-transparan */
-    color: white;
+    bottom: 0%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Memindahkan teks ke tengah */
+    color: #ffffff;
     padding: 10px;
-    font-size: 14px;
+    font-size: 30px;
+    font-family: 'Poppins', serif;
+    font-weight: 900;
     text-align: center;
-    box-sizing: border-box;
+    box-sizing: inherit;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
 }
-.offer-item p {
-    margin-top: 10px;
-    font-size: 14px;
-}
+
 
 .limited-offer {
     display: flex;
@@ -371,17 +368,27 @@ nav a {
     z-index: 1; /* Memastikan teks di atas */
     margin-left: 30px;
 }
+.text-box text{
+    margin-left: 50px;
+}
 
 .text-box h2 {
     font-family: 'Merriweather', serif;
     font-size: 24px;
     margin-bottom: 10px;
     color: #2f4f2f;
+    margin-left: 50px;
 }
 
 .text-box p {
     font-size: 16px;
     color: #2f4f2f;
+    margin-left: 50px;
+}
+.text-box h3{
+    font-size: 14px;
+    font-style: italic;
+    margin-left: 50px;
 }
 
 .image-box {

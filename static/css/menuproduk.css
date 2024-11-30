@@ -74,11 +74,20 @@ body {
     font-size: 18px;
 }
 
+.section-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #004600;
+    margin-left:1px
+}
+   
+
 .product-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr); /* Ubah menjadi 4 kolom */
     gap: 2px; /* Kurangi jarak antar card */
     width: 80%;
+    margin-top: 70px;
 }
 
 .product-card {
@@ -172,3 +181,6 @@ body {
 .add-to-cart:hover {
     background-color: #57a84d;
 }
+
+
+  

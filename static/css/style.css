@@ -10,7 +10,7 @@ body, html {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(135deg, #69BF5E, #A8E063);
+    background: #69BF5E;
 }
 
 
@@ -27,6 +27,13 @@ body, html {
     background-repeat: no-repeat;
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
+}
+.register-left img {
+    width: 15%;
+    float: right;
+    margin: 165px 175px 10px 20px; /* Menyesuaikan margin kanan untuk mendekatkan ke kiri */
+    width: 60%;
+    height: auto;
 }
 
 .register-right {
@@ -109,6 +116,13 @@ h2 {
     border-bottom-right-radius: 50px;
 }
 /* Styling untuk gambar di login-left */
+.login-left img {
+    width: 15%;
+    float: right;
+    margin: 165px 175px 10px 20px; /* Menyesuaikan margin kanan untuk mendekatkan ke kiri */
+    width: 60%;
+    height: auto;
+}
 
 
 .login-right {
@@ -191,6 +205,13 @@ h2 {
     background-repeat: no-repeat;
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
+}
+.forgot-left img{
+    width: 15%;
+    float: right;
+    margin: 165px 175px 10px 20px; /* Menyesuaikan margin kanan untuk mendekatkan ke kiri */
+    width: 60%;
+    height: auto;
 }
 
 .forgot-right {
