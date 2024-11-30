@@ -64,11 +64,30 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
+# Ensure the upload folder exists
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 # Route untuk halaman utama
 @app.route('/')
 def home():
     if 'user_id' in session:
-        return render_template('index.html', user=session['user_name'])
+        user = User.query.get(session['user_id'])
+        if 'profile_photo' in request.files:
+            file = request.files['profile_photo']
+            if file and allowed_file(file.filename):
+                # Generate a unique filename using UUID
+                ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
+                filename = f"{uuid.uuid4().hex}.{ext}"  # Create unique filename
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+                # Update user's profile_photo in the database
+                user.profile_photo = filename
+                db.session.commit()  # Commit changes to the database
+        return render_template('index.html', user=user)  # Kirim objek user ke template
     return redirect(url_for('login'))
 
 @app.route('/forgot_password', methods=['GET', 'POST'])
@@ -203,13 +222,6 @@ def logout():
     flash('Anda telah logout.', 'info')
     return redirect(url_for('login'))
 
-# Ensure the upload folder exists
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 @app.route('/profile_settings', methods=['GET', 'POST'])
 def profile_settings():
     if 'user_id' not in session:
@@ -288,11 +300,20 @@ def api_login():
     user = User.query.filter_by(email=email).first()
     if user and check_password_hash(user.password, password):
         # Generate token untuk otentikasi
-        token = jwt.encode({'user_id': user.id, 'exp': datetime.utcnow() + timedelta(hours=24)},app.secret_key, algorithm='HS256')
-        return jsonify({'status': 'success', 'message': 'Login berhasil', 'token': token}), 200
+        payload = {
+            'user_id': user.id,
+            'exp': datetime.utcnow() + timedelta(hours=24)  # Token akan kadaluarsa dalam 24 jam
+        }
+        token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+
+        # Decode token ke dalam format string (untuk dikirim dalam response)
+        return jsonify({
+            'status': 'success',
+            'message': 'Login berhasil',
+            'token': token.decode('utf-8')  # Decode hasil token menjadi string UTF-8
+        }), 200
 
     return jsonify({'status': 'error', 'message': 'Email atau password salah'}), 401
-
 # API untuk Logout
 @app.route('/api/logout', methods=['POST'])
 def api_logout():

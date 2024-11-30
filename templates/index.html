@@ -20,18 +20,16 @@
                 <a href="#">Akun</a>
             </nav>
             <div class="profile-logo">
-                <!-- Use the uploaded profile picture -->
-                {% if user.profile_photo %}
-                    <img src="{{ url_for('static', filename='profile_photos/' + user.profile_photo) }}" 
-                         alt="Profile Logo" 
-                         onclick="window.location.href='{{ url_for('profile_settings') }}'">
-                {% else %}
-                    <!-- Default profile picture -->
-                    <img src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" 
-                         alt="Default Logo" 
-                         onclick="window.location.href='{{ url_for('profile_settings') }}'">
-                {% endif %}
+                <div class="profile-logo">
+                    {% if user.profile_photo %}
+                        <img src="{{ url_for('static', filename='profile_photos/' + user.profile_photo) }}" alt="Profile Logo" onclick="window.location.href='{{ url_for('profile_settings') }}'">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" alt="Default Logo" onclick="window.location.href='{{ url_for('profile_settings') }}'">
+                    {% endif %}
+                </div>
+                <p>{{ user.name }}</p>
             </div>
+            
 
         </header>
 
