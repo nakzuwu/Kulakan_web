@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
@@ -8,7 +8,8 @@ from werkzeug.utils import secure_filename
 from form import ProfileForm
 import os
 import uuid
-import jwt
+import jwt 
+
 
 UPLOAD_FOLDER = 'static/profile_photos'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -27,7 +28,7 @@ mail = Mail(app)
 s = URLSafeTimedSerializer(app.secret_key)
 
 # Konfigurasi MySQL Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'aw'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://C7CP:S.Tr.Kom2024@194.31.53.102:3306/C7CP'
 
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -247,6 +248,95 @@ def profile_settings():
     form.address.data = user.address
 
     return render_template('profile_settings.html', form=form, user=user)
+
+# API untuk Register
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    data = request.get_json()  # Mendapatkan data JSON dari body request
+    name = data.get('name')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not name or not email or not password:
+        return jsonify({'status': 'error', 'message': 'Semua field harus diisi'}), 400
+
+    # Hash password
+    hashed_password = generate_password_hash(password)
+
+    # Cek apakah email sudah terdaftar
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        return jsonify({'status': 'error', 'message': 'Email sudah terdaftar'}), 400
+
+    # Simpan pengguna baru
+    new_user = User(name=name, email=email, password=hashed_password)
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({'status': 'success', 'message': 'Registrasi berhasil'}), 201
+
+# API untuk Login
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.get_json()  # Mendapatkan data JSON dari body request
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'status': 'error', 'message': 'Email dan password harus diisi'}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if user and check_password_hash(user.password, password):
+        # Generate token untuk otentikasi
+        token = jwt.encode({'user_id': user.id, 'exp': datetime.utcnow() + timedelta(hours=24)},app.secret_key, algorithm='HS256')
+        return jsonify({'status': 'success', 'message': 'Login berhasil', 'token': token}), 200
+
+    return jsonify({'status': 'error', 'message': 'Email atau password salah'}), 401
+
+# API untuk Logout
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    # Logout tidak memerlukan penanganan di backend jika menggunakan token-based auth
+    return jsonify({'status': 'success', 'message': 'Logout berhasil'}), 200
+
+# API untuk Mendapatkan Data User
+@app.route('/api/user', methods=['GET'])
+def api_get_user():
+    # Token harus dikirim melalui header Authorization
+    token = request.headers.get('Authorization')
+
+    if not token:
+        return jsonify({'status': 'error', 'message': 'Token tidak diberikan'}), 401
+
+    try:
+        # Decode token untuk mendapatkan user ID
+        data = jwt.decode(token, app.secret_key, algorithms=['HS256'])
+        user = User.query.get(data['user_id'])
+
+        if not user:
+            return jsonify({'status': 'error', 'message': 'User tidak ditemukan'}), 404
+
+        # Return data pengguna
+        return jsonify({
+            'status': 'success',
+            'data': {
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'address': user.address,
+                'profile_photo': user.profile_photo
+            }
+        }), 200
+    except jwt.ExpiredSignatureError:
+        return jsonify({'status': 'error', 'message': 'Token telah kadaluarsa'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'status': 'error', 'message': 'Token tidak valid'}), 401
+    
+# Error Handler untuk 404
+@app.errorhandler(404)
+def page_not_found(e):
+    return jsonify({'status': 'error', 'message': 'Endpoint tidak ditemukan'}), 404
+
 
 @app.route('/admin/dashboard')
 def dashboard():
