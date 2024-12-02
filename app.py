@@ -28,7 +28,8 @@ mail = Mail(app)
 s = URLSafeTimedSerializer(app.secret_key)
 
 # Konfigurasi MySQL Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'aw'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/db_kulakan'
+
 
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -359,21 +360,26 @@ def page_not_found(e):
     return jsonify({'status': 'error', 'message': 'Endpoint tidak ditemukan'}), 404
 
 
-@app.route('/admin/dashboard')
+@app.route('/admin/content/dashboard')
 def dashboard():
-    return render_template('admin/dashboard.html')
+    return render_template('admin/content/dashboard.html')
 
-@app.route('/admin/addproduk')
+@app.route('/admin/content/addproduk')
 def addproduk():
-    return render_template('admin/addproduk.html')
+    return render_template('admin/content/addproduk.html')
 
 @app.route('/frontend/menuproduk')
 def menuproduk():
     return render_template('frontend/menuproduk.html')
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
+@app.route('/setting')
+def setting():
+    return render_template('frontend/setting.html')
+
+@app.route('/scan')
+def scan():
+    return render_template('frontend/scan.html')
+
 
 
 if __name__ == '__main__':
