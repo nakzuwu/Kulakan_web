@@ -12,14 +12,16 @@
 <body>
     <!-- Search Section -->
         <div class="search-container">
-            <a href="{{ url_for('home') }}" class="back-icon">
-                <i class="fas fa-arrow-left"></i>
-            </a>            
+            <a href="{{ url_for('home') }}" class="back-icon" aria-label="Go back to Home">
+                <i class="fas fa-arrow-left" aria-hidden="true"></i>
+            </a>                   
         <div class="search-bar">
             <input type="text" placeholder="Search for products...">
         </div>
         <div class="camera-icon">
+            <a href="{{ url_for('scan') }}" class="back-icon">
             <i class="fas fa-camera"></i>
+        </a>
         </div>
     </div>
     
@@ -34,8 +36,8 @@
                 <span class="tag new">NEW</span>
                 <span class="tag sale">SALE</span>
             </div>
-            <h3 class="product-name">Product Name</h3>
-            <p class="product-price"><span class="price">$150.00</span> <span class="original-price">$200.00</span></p>
+            <h3 class="product-name">Beras</h3>
+            <p class="product-price"><span class="price">Rp 60.000</span> <span class="original-price">$200.00</span></p>
             <button class="add-to-cart">Add to Cart</button>
         </div>
 
@@ -45,8 +47,8 @@
                 <span class="tag new">NEW</span>
                 <span class="tag sale">SALE</span>
             </div>
-            <h3 class="product-name">Product Name</h3>
-            <p class="product-price"><span class="price">$150.00</span> <span class="original-price">$200.00</span></p>
+            <h3 class="product-name">Tepung</h3>
+            <p class="product-price"><span class="price">Rp 20.000</span> <span class="original-price">$200.00</span></p>
             <button class="add-to-cart">Add to Cart</button>
         </div>
 
@@ -56,8 +58,8 @@
                 <span class="tag new">NEW</span>
                 <span class="tag sale">SALE</span>
             </div>
-            <h3 class="product-name">Product Name</h3>
-            <p class="product-price"><span class="price">$150.00</span> <span class="original-price">$200.00</span></p>
+            <h3 class="product-name">Minyak</h3>
+            <p class="product-price"><span class="price">Rp 30.000</span> <span class="original-price">$200.00</span></p>
             <button class="add-to-cart">Add to Cart</button>
         </div>
 
@@ -67,8 +69,8 @@
                 <span class="tag new">NEW</span>
                 <span class="tag sale">SALE</span>
             </div>
-            <h3 class="product-name">Product Name</h3>
-            <p class="product-price"><span class="price">$150.00</span> <span class="original-price">$200.00</span></p>
+            <h3 class="product-name">Gulaku</h3>
+            <p class="product-price"><span class="price">Rp 40.000</span> <span class="original-price">$200.00</span></p>
             <button class="add-to-cart">Add to Cart</button>
         </div>
         

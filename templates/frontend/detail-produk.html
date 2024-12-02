@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/product.css') }}">
+    <title>{{ produk.name }}</title>
+</head>
+<body>
+    <header>
+        <h1>{{ produk.name }}</h1>
+    </header>
+    <main>
+        <div class="product-detail">
+            <img src="{{ url_for('static', filename=produk.image) }}" alt="{{ produk.name }}">
+            <h2>{{ produk.name }}</h2>
+            <p>{{ produk.description }}</p>
+            <p class="price">Rp {{ produk.price | int }}</p>
+            <div class="action-buttons">
+                <button>Tambahkan ke Keranjang</button>
+                <button>Beli Sekarang</button>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
