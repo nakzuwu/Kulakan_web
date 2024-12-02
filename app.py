@@ -14,8 +14,6 @@ import os
 import uuid
 import jwt 
 
-load_dotenv()
-
 app = Flask(__name__)
 app.secret_key = 'capstonekel7'
 
@@ -25,35 +23,36 @@ mail = Mail(app)
 # Inisialisasi Serializer untuk token
 s = URLSafeTimedSerializer(app.secret_key)
 
-# Konfigurasi MySQL Database
-UPLOAD_FOLDER = 'static/profile_photos'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+# Load .env file
+load_dotenv()
+
+# Access environment variables
+UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER')
+ALLOWED_EXTENSIONS = set(os.getenv('ALLOWED_EXTENSIONS', 'png,jpg,jpeg,gif').split(','))
+
+# Other configurations
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://C7CP:S.Tr.Kom2024@194.31.53.102:3306/C7CP'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'enkajet439@gmail.com'
-app.config['MAIL_PASSWORD'] = 'aw'  # Ganti dengan App Password
-app.config['MAIL_DEFAULT_SENDER'] = 'Kulakan support<enkajet439@gmail.com>'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS') == 'True'
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
 
 db.init_app(app)
-
-# Inisialisasi Database
 with app.app_context():
     db.create_all()
 
-# Ensure the upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Route untuk halaman utama
 @app.route('/')
 def home():
     if 'user_id' in session:
@@ -64,7 +63,7 @@ def home():
                 # Generate a unique filename using UUID
                 ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
                 filename = f"{uuid.uuid4().hex}.{ext}"  # Create unique filename
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
 
                 # Update user's profile_photo in the database
                 user.profile_photo = filename
@@ -186,12 +185,25 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
+        # Cari user berdasarkan email
         user = User.query.filter_by(email=email).first()
+
+        # Verifikasi password
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.id
             session['user_name'] = user.name
+            session['user_role'] = user.role  # Menyimpan role pengguna di session
+
             flash('Login berhasil!', 'success')
-            return redirect(url_for('home'))
+
+            # Redirect berdasarkan role
+            if user.role == 'super_admin':
+                return redirect(url_for('super_admin_dashboard'))  # Halaman untuk super admin
+            elif user.role == 'store_admin':
+                return redirect(url_for('store_admin_dashboard'))  # Halaman untuk store admin
+            else:
+                return redirect(url_for('home'))  # Halaman untuk user biasa
+
         else:
             flash('Email atau password salah.', 'danger')
     
@@ -398,8 +410,6 @@ def setting():
 @app.route('/scan')
 def scan():
     return render_template('frontend/scan.html')
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
