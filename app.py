@@ -364,9 +364,57 @@ def page_not_found(e):
 def dashboard():
     return render_template('admin/content/dashboard.html')
 
-@app.route('/admin/content/addproduk')
+# addproduk
+# Model untuk produk
+class Produk(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nama_barang = db.Column(db.String(100), nullable=False)
+    harga = db.Column(db.Integer, nullable=False)
+    kategori = db.Column(db.String(50), nullable=False)
+    stok = db.Column(db.Integer, nullable=False)
+    deskripsi = db.Column(db.Text, nullable=True)
+    gambar = db.Column(db.String(200), nullable=True)  # Nama file gambar
+
+
+# Route untuk form tambah produk
+@app.route('/addproduk', methods=['GET', 'POST'])
 def addproduk():
-    return render_template('admin/content/addproduk.html')
+    if request.method == 'POST':
+        nama_barang = request.form['nama_barang']
+        harga = request.form['harga']
+        kategori = request.form['kategori']
+        stok = request.form['stok']
+        deskripsi = request.form['deskripsi']
+
+        file = request.files['gambar']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        else:
+            flash('Format file tidak didukung!', 'error')
+            return redirect(request.url)
+
+        # Validasi dan tambah ke database
+        produk_baru = Produk(
+            nama_barang=nama_barang,
+            harga=int(harga),
+            kategori=kategori,
+            stok=int(stok),
+            deskripsi=deskripsi,
+             gambar=filename
+        )
+        try:
+            db.session.add(produk_baru)
+            db.session.commit()
+            flash('Produk berhasil ditambahkan!', 'success')
+            return redirect(url_for('addproduk'))
+        except Exception as e:
+            flash(f'Terjadi kesalahan: {e}', 'error')
+    return render_template('admin/content/addproduk.html') 
+
+with app.app_context():
+    db.create_all()
+# addproduk
 
 @app.route('/frontend/menuproduk')
 def menuproduk():
