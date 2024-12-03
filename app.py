@@ -6,20 +6,16 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignat
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from form import ProfileForm
+from models import db
+from models.user import User
+from models.product import Produk
+from dotenv import load_dotenv
 import os
 import uuid
 import jwt 
 
-
-UPLOAD_FOLDER = 'static/profile_photos'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-
-# Set max content length for file uploads (5MB max)
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.secret_key = 'capstonekel7'
 
 # Inisialisasi Flask-Mail
 mail = Mail(app)
@@ -27,52 +23,36 @@ mail = Mail(app)
 # Inisialisasi Serializer untuk token
 s = URLSafeTimedSerializer(app.secret_key)
 
-# Konfigurasi MySQL Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/db_kulakan'
+# Load .env file
+load_dotenv()
+
+# Access environment variables
+UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER')
+ALLOWED_EXTENSIONS = set(os.getenv('ALLOWED_EXTENSIONS', 'png,jpg,jpeg,gif').split(','))
+
+# Other configurations
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS') == 'True'
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
 
-
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'enkajet439@gmail.com'
-app.config['MAIL_PASSWORD'] = 'aw'  # Ganti dengan App Password
-app.config['MAIL_DEFAULT_SENDER'] = 'Kulakan support<enkajet439@gmail.com>'
-
-
-db = SQLAlchemy(app)
-
-# Model Database untuk User
-class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)
-    address = db.Column(db.String(255), nullable=True)
-    profile_photo = db.Column(db.String(100), nullable=True, default='default.jpg')  # Default photo
-
-    def __init__(self, name, email, password, address=None, profile_photo='default.jpg'):
-        self.name = name
-        self.email = email
-        self.password = password
-        self.address = address
-        self.profile_photo = profile_photo
-
-
-# Inisialisasi Database
+db.init_app(app)
 with app.app_context():
     db.create_all()
 
-# Ensure the upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Route untuk halaman utama
 @app.route('/')
 def home():
     if 'user_id' in session:
@@ -83,15 +63,15 @@ def home():
                 # Generate a unique filename using UUID
                 ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
                 filename = f"{uuid.uuid4().hex}.{ext}"  # Create unique filename
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
 
                 # Update user's profile_photo in the database
                 user.profile_photo = filename
                 db.session.commit()  # Commit changes to the database
         return render_template('index.html', user=user)  # Kirim objek user ke template
     return redirect(url_for('login'))
-
 @app.route('/forgot_password', methods=['GET', 'POST'])
+
 def forgot_password():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -205,12 +185,25 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
+        # Cari user berdasarkan email
         user = User.query.filter_by(email=email).first()
+
+        # Verifikasi password
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.id
             session['user_name'] = user.name
+            session['user_role'] = user.role  # Menyimpan role pengguna di session
+
             flash('Login berhasil!', 'success')
-            return redirect(url_for('home'))
+
+            # Redirect berdasarkan role
+            if user.role == 'super_admin':
+                return redirect(url_for('super_admin_dashboard'))  # Halaman untuk super admin
+            elif user.role == 'store_admin':
+                return redirect(url_for('store_admin_dashboard'))  # Halaman untuk store admin
+            else:
+                return redirect(url_for('home'))  # Halaman untuk user biasa
+
         else:
             flash('Email atau password salah.', 'danger')
     
@@ -365,16 +358,6 @@ def dashboard():
     return render_template('admin/content/dashboard.html')
 
 # addproduk
-# Model untuk produk
-class Produk(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nama_barang = db.Column(db.String(100), nullable=False)
-    harga = db.Column(db.Integer, nullable=False)
-    kategori = db.Column(db.String(50), nullable=False)
-    stok = db.Column(db.Integer, nullable=False)
-    deskripsi = db.Column(db.Text, nullable=True)
-    gambar = db.Column(db.String(200), nullable=True)  # Nama file gambar
-
 
 # Route untuk form tambah produk
 @app.route('/addproduk', methods=['GET', 'POST'])
@@ -435,8 +418,6 @@ def setting():
 @app.route('/scan')
 def scan():
     return render_template('frontend/scan.html')
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)

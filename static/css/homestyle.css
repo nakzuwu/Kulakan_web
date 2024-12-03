@@ -568,3 +568,19 @@ nav a {
     border-radius: 10px;
     border: 2px solid #ddd;
 }
+.profile-logo {
+    display: flex;
+    align-items: center;
+}
+
+.user-name {
+    margin-right: 10px; /* Adjust the space between name and photo */
+    font-weight: bold;
+}
+
+.profile-photo {
+    width: 40px; /* Adjust photo size as needed */
+    height: 40px; /* Adjust photo size as needed */
+    border-radius: 50%;
+    cursor: pointer;
+}

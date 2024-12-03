@@ -21,11 +21,11 @@
             </nav>
             <div class="profile-logo">
                 <div class="profile-logo">
-                    <p>{{ user.name }}</p>
+                    <p class="user-name">{{ user.name }}</p>
                     {% if user.profile_photo %}
-                        <img src="{{ url_for('static', filename='profile_photos/' + user.profile_photo) }}" alt="Profile Logo" onclick="window.location.href='{{ url_for('profile_settings') }}'">
+                        <img class="profile-photo" src="{{ url_for('static', filename='profile_photos/' + user.profile_photo) }}" alt="Profile Logo" onclick="window.location.href='{{ url_for('profile_settings') }}'">
                     {% else %}
-                        <img src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" alt="Default Logo" onclick="window.location.href='{{ url_for('profile_settings') }}'">
+                        <img class="profile-photo" src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" alt="Default Logo" onclick="window.location.href='{{ url_for('profile_settings') }}'">
                     {% endif %}
                 </div>
             </div>
