@@ -416,9 +416,17 @@ with app.app_context():
     db.create_all()
 # addproduk
 
+# edit
+
+# edit
+@app.route('/frontend/detailproduk/<int:id>')
+def detailProduk(id):
+    dataBs = Produk.query.get_or_404(id)
+    return render_template('frontend/detailproduk.html', dataBs=dataBs)
 @app.route('/frontend/menuproduk')
 def menuproduk():
-    return render_template('frontend/menuproduk.html')
+    dataProduk = Produk.query.all()
+    return render_template('frontend/menuproduk.html', dataProduk=dataProduk)
 
 @app.route('/setting')
 def setting():

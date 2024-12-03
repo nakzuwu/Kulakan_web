@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marketplace</title>
+    <title>KULAKAN</title>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
@@ -30,50 +30,22 @@
     <!-- Product Grid -->
     <div class="product-grid">
         <!-- Repeat this block for each product -->
-        <div class="product-card">
-            <div class="product-image">
-                <img src="{{ url_for('static', filename='asset/image/beras.jpg') }}" alt="product">
-                <span class="tag new">NEW</span>
-                <span class="tag sale">SALE</span>
-            </div>
-            <h3 class="product-name">Beras</h3>
-            <p class="product-price"><span class="price">Rp 60.000</span> <span class="original-price">$200.00</span></p>
-            <button class="add-to-cart">Add to Cart</button>
-        </div>
-
-        <div class="product-card">
+         {% for ds in dataProduk%}
+       
+        <a  href="{{url_for('detailProduk', id=ds.id)}}">
+        <div class="product-card" >
             <div class="product-image">
                 <img src="{{ url_for('static', filename='asset/image/download.jpg') }}" alt="product">
-                <span class="tag new">NEW</span>
-                <span class="tag sale">SALE</span>
+                <span class="tag new">BARU</span>
+                <span class="tag sale">OBRAL</span>
             </div>
-            <h3 class="product-name">Tepung</h3>
-            <p class="product-price"><span class="price">Rp 20.000</span> <span class="original-price">$200.00</span></p>
-            <button class="add-to-cart">Add to Cart</button>
+            <h3 class="product-name">{{ds.nama_barang}}</h3>
+            <p class="product-price"><span class="price">Rp 20.000</span> <span class="original-price">{{ds.harga}}</span></p>
+            <button class="add-to-cart">Keranjang</button>
         </div>
-
-        <div class="product-card">
-            <div class="product-image">
-                <img src="{{ url_for('static', filename='asset/image/minyak1.jpg') }}" alt="product">
-                <span class="tag new">NEW</span>
-                <span class="tag sale">SALE</span>
-            </div>
-            <h3 class="product-name">Minyak</h3>
-            <p class="product-price"><span class="price">Rp 30.000</span> <span class="original-price">$200.00</span></p>
-            <button class="add-to-cart">Add to Cart</button>
-        </div>
-
-        <div class="product-card">
-            <div class="product-image">
-                <img src="{{ url_for('static', filename='asset/image/gula.jpg') }}" alt="product">
-                <span class="tag new">NEW</span>
-                <span class="tag sale">SALE</span>
-            </div>
-            <h3 class="product-name">Gulaku</h3>
-            <p class="product-price"><span class="price">Rp 40.000</span> <span class="original-price">$200.00</span></p>
-            <button class="add-to-cart">Add to Cart</button>
-        </div>
-        
+        </a>
+    {%endfor%}
+                
         <!-- End Product Card -->
     </div>
 </body>
