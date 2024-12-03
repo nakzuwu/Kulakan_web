@@ -7,26 +7,30 @@
   <title>Settings</title>
 </head>
 <body>
+  <a href="{{ url_for('home') }}" class="back-button">
+    <i class="fa fa-arrow-left"></i> Back
+  </a>
+
   <div class="settings-container">
     <h1 class="settings-title">Settings</h1>
     <div class="settings-list">
-      <div class="setting-item">
+      <div class="setting-item" onclick="window.location.href='{{ url_for('profile_settings') }}';">
         <i class="icon fa fa-user"></i>
         <span class="setting-text">Account</span>
       </div>
-      <div class="setting-item">
+      <div class="setting-item" onclick="window.location.href='#';">
         <i class="icon fa fa-lock"></i>
         <span class="setting-text">Privacy</span>
       </div>
-      <div class="setting-item">
+      <div class="setting-item" onclick="window.location.href='#';">
         <i class="icon fa fa-bell"></i>
         <span class="setting-text">Notifications</span>
       </div>
-      <div class="setting-item">
+      <div class="setting-item" onclick="window.location.href='#';">
         <i class="icon fa fa-cog"></i>
         <span class="setting-text">General</span>
       </div>
     </div>
-  </div>
+  </div>  
 </body>
 </html>
