@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from functools import wraps
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
@@ -8,7 +9,7 @@ from werkzeug.utils import secure_filename
 from form import ProfileForm
 from models import db
 from models.user import User
-from models.product import Produk
+from models.product import Product
 from dotenv import load_dotenv
 import os
 import uuid
@@ -71,8 +72,8 @@ def home():
                 db.session.commit()  # Commit changes to the database
         return render_template('index.html', user=user)  # Kirim objek user ke template
     return redirect(url_for('login'))
-@app.route('/forgot_password', methods=['GET', 'POST'])
 
+@app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -353,15 +354,43 @@ def api_get_user():
 def page_not_found(e):
     return jsonify({'status': 'error', 'message': 'Endpoint tidak ditemukan'}), 404
 
+def role_required(role):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Check if user is logged in
+            if 'user_id' not in session:
+                flash("You need to log in to access this page.", "warning")
+                return redirect(url_for('login'))
+            
+            # Fetch the user object (adjust based on your user model)
+            user = User.query.get(session['user_id'])
+            if not user or user.role != role:
+                flash("You do not have permission to access this page.", "danger")
+                return redirect(url_for('home'))
+            
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
 
 @app.route('/admin/content/dashboard')
+@role_required('store_admin')
 def dashboard():
-    return render_template('admin/content/dashboard.html')
+    # Get the currently logged-in admin
+    user_id = session.get('user_id')
+    admin = User.query.get(user_id)
 
-# addproduk
+    if admin and admin.role == 'store_admin':
+        # Fetch products associated with this admin
+        products = Product.query.filter_by(user_id=admin.id).all()
+        return render_template('admin/content/dashboard.html', admin=admin, products=products)
+    
+    flash("You do not have permission to access this page.", "danger")
+    return redirect(url_for('home'))
 
 # Route untuk form tambah produk
 @app.route('/addproduk', methods=['GET', 'POST'])
+@role_required('store_admin')  # Membatasi akses hanya untuk admin
 def addproduk():
     if request.method == 'POST':
         nama_barang = request.form['nama_barang']
@@ -370,22 +399,31 @@ def addproduk():
         stok = request.form['stok']
         deskripsi = request.form['deskripsi']
 
+        # Mendapatkan file gambar
         file = request.files['gambar']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
         else:
             flash('Format file tidak didukung!', 'error')
             return redirect(request.url)
 
-        # Validasi dan tambah ke database
-        produk_baru = Produk(
+        # Mendapatkan user_id dari session
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Anda harus login untuk menambahkan produk!', 'error')
+            return redirect(url_for('login'))
+
+        # Validasi dan tambah produk ke database
+        produk_baru = Product(
             nama_barang=nama_barang,
             harga=int(harga),
             kategori=kategori,
             stok=int(stok),
             deskripsi=deskripsi,
-             gambar=filename
+            gambar=filename,
+            user_id=user_id  # Menghubungkan produk dengan admin saat ini
         )
         try:
             db.session.add(produk_baru)
@@ -394,7 +432,8 @@ def addproduk():
             return redirect(url_for('addproduk'))
         except Exception as e:
             flash(f'Terjadi kesalahan: {e}', 'error')
-    return render_template('admin/content/addproduk.html') 
+
+    return render_template('admin/content/addproduk.html')
 
 with app.app_context():
     db.create_all()
@@ -405,11 +444,11 @@ with app.app_context():
 # edit
 @app.route('/frontend/detailproduk/<int:id>')
 def detailProduk(id):
-    dataBs = Produk.query.get_or_404(id)
+    dataBs = Product.query.get_or_404(id)
     return render_template('frontend/detailproduk.html', dataBs=dataBs)
 @app.route('/frontend/menuproduk')
 def menuproduk():
-    dataProduk = Produk.query.all()
+    dataProduk = Product.query.all()
     return render_template('frontend/menuproduk.html', dataProduk=dataProduk)
 
 @app.route('/setting')
