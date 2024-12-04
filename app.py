@@ -70,8 +70,8 @@ def home():
                 db.session.commit()  # Commit changes to the database
         return render_template('index.html', user=user)  # Kirim objek user ke template
     return redirect(url_for('login'))
-
 @app.route('/forgot_password', methods=['GET', 'POST'])
+
 def forgot_password():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -399,9 +399,17 @@ with app.app_context():
     db.create_all()
 # addproduk
 
-@app.route('/menuproduk')
+# edit
+
+# edit
+@app.route('/frontend/detailproduk/<int:id>')
+def detailProduk(id):
+    dataBs = Produk.query.get_or_404(id)
+    return render_template('frontend/detailproduk.html', dataBs=dataBs)
+@app.route('/frontend/menuproduk')
 def menuproduk():
-    return render_template('frontend/menuproduk.html')
+    dataProduk = Produk.query.all()
+    return render_template('frontend/menuproduk.html', dataProduk=dataProduk)
 
 @app.route('/setting')
 def setting():

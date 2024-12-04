@@ -4,31 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/setting.css') }}">
-  <title>Settings</title>
+  <title>Pengaturan</title>
 </head>
 <body>
   <a href="{{ url_for('home') }}" class="back-button">
-    <i class="fa fa-arrow-left"></i> Back
+    <i class="fa fa-arrow-left"></i> Kembali
   </a>
 
   <div class="settings-container">
-    <h1 class="settings-title">Settings</h1>
+    <h1 class="settings-title">Pengaturan</h1>
     <div class="settings-list">
       <div class="setting-item" onclick="window.location.href='{{ url_for('profile_settings') }}';">
         <i class="icon fa fa-user"></i>
-        <span class="setting-text">Account</span>
+        <span class="setting-text">Akun</span>
       </div>
       <div class="setting-item" onclick="window.location.href='#';">
         <i class="icon fa fa-lock"></i>
-        <span class="setting-text">Privacy</span>
+        <span class="setting-text">Notifikasi</span>
       </div>
       <div class="setting-item" onclick="window.location.href='#';">
         <i class="icon fa fa-bell"></i>
-        <span class="setting-text">Notifications</span>
+        <span class="setting-text">Tentang Kami</span>
       </div>
-      <div class="setting-item" onclick="window.location.href='#';">
+      <div class="setting-item" onclick="window.location.href='{{ url_for('login') }}';">
         <i class="icon fa fa-cog"></i>
-        <span class="setting-text">General</span>
+        <span class="setting-text">Logout</span>
       </div>
     </div>
   </div>  
