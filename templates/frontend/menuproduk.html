@@ -10,13 +10,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/menuproduk.css') }}">
 </head>
 <body>
+    <a href="{{ url_for('home') }}" class="back-button">
+        <i class=""></i> Kembali
+    </a>
     <!-- Search Section -->
-        <div class="search-container">
-            <a href="{{ url_for('home') }}" class="back-icon" aria-label="Go back to Home">
-                <i class="fas fa-arrow-left" aria-hidden="true"></i>
-            </a>                   
+        <div class="search-container">                 
         <div class="search-bar">
-            <input type="text" placeholder="Search for products...">
+            <input type="text" placeholder="Cari produk atau toko...">
         </div>
         <div class="camera-icon">
             <a href="{{ url_for('scan') }}" class="back-icon">
@@ -33,16 +33,16 @@
          {% for ds in dataProduk%}
        
         <a  href="{{url_for('detailProduk', id=ds.id)}}">
-        <div class="product-card" >
-            <div class="product-image">
-                <img src="{{ url_for('static', filename='asset/image/download.jpg') }}" alt="product">
-                <span class="tag new">BARU</span>
-                <span class="tag sale">OBRAL</span>
-            </div>
-            <h3 class="product-name">{{ds.nama_barang}}</h3>
-            <p class="product-price"><span class="price">Rp 20.000</span> <span class="original-price">{{ds.harga}}</span></p>
-            <button class="add-to-cart">Keranjang</button>
-        </div>
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="{{ ds.file }}" alt="{{ ds.nama_barang }}">
+                    <span class="tag new">BARU</span>
+                    <span class="tag sale">OBRAL</span>
+                </div>
+                <h3 class="product-name">{{ ds.nama_barang }}</h3>
+                <p class="product-price"><span class="price">Rp. {{ ds.harga }}</span></p>
+                <button class="add-to-cart">Keranjang</button>
+            </div>            
         </a>
     {%endfor%}
                 

@@ -17,13 +17,13 @@ import jwt
 app = Flask(__name__)
 app.secret_key = 'capstonekel7'
 
-# Inisialisasi Flask-Mail
 mail = Mail(app)
 
 # Inisialisasi Serializer untuk token
 s = URLSafeTimedSerializer(app.secret_key)
 
 # Load .env file
+# Inisialisasi Flask-Mail
 load_dotenv()
 
 # Access environment variables
@@ -33,7 +33,8 @@ ALLOWED_EXTENSIONS = set(os.getenv('ALLOWED_EXTENSIONS', 'png,jpg,jpeg,gif').spl
 # Other configurations
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/db_kulakan?ssl_disabled=false'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS') == 'True'
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
@@ -418,6 +419,10 @@ def setting():
 @app.route('/scan')
 def scan():
     return render_template('frontend/scan.html')
+
+@app.route('/pesanan')
+def pesanan():
+    return render_template('frontend/pesanan.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
