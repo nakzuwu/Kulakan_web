@@ -10,6 +10,10 @@ class User(db.Model):
     profile_photo = db.Column(db.String(100), nullable=True, default='default.jpg')  # Default photo
     role = db.Column(db.Enum('user', 'store_admin', 'super_admin', name='user_roles'), default='user')  # Default role 'user'
 
+    # Relationship to fetch products
+    products = db.relationship('Product', backref='owner', lazy=True)
+
+
     def __init__(self, name, email, password, address=None, profile_photo='default.jpg', role='user'):
         self.name = name
         self.email = email

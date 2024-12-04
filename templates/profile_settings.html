@@ -22,7 +22,7 @@
                     {% if user.profile_photo %}
                         <img src="{{ url_for('static', filename='profile_photos/' + user.profile_photo) }}" alt="Profile Photo">
                     {% else %}
-                        <img src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" alt="Default Profile Photo">
+                        <img src="{{ url_for('static', filename='uploads\default_profile.jpg') }}" alt="Default Profile Photo">
                     {% endif %}
                 </div>
                 
@@ -30,7 +30,9 @@
                     <p><strong>Nama:</strong> {{ user.name }}</p>
                     <p><strong>Email:</strong> {{ user.email }}</p>
                     <p><strong>Alamat:</strong> {{ user.address if user.address else 'Not provided' }}</p>
-                    <a href="{{ url_for('dashboard') }}" class="btn">Admin Kulakan</a>
+                    {% if user.role != 'user' %}
+                        <a href="{{ url_for('dashboard') }}" class="btn">Admin Kulakan</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
