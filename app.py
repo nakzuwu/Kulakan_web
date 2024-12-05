@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
@@ -11,6 +10,8 @@ from models import db
 from models.user import User
 from models.product import Product
 from dotenv import load_dotenv
+from controllers import user_controller
+from controllers import auth_controller
 import os
 import uuid
 import jwt 
@@ -56,21 +57,7 @@ def allowed_file(filename):
 
 @app.route('/')
 def home():
-    if 'user_id' in session:
-        user = User.query.get(session['user_id'])
-        if 'profile_photo' in request.files:
-            file = request.files['profile_photo']
-            if file and allowed_file(file.filename):
-                # Generate a unique filename using UUID
-                ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
-                filename = f"{uuid.uuid4().hex}.{ext}"  # Create unique filename
-                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-
-                # Update user's profile_photo in the database
-                user.profile_photo = filename
-                db.session.commit()  # Commit changes to the database
-        return render_template('index.html', user=user)  # Kirim objek user ke template
-    return redirect(url_for('login'))
+    return user_controller.home()
 
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
@@ -145,116 +132,25 @@ def reset_password(token):
         flash('Token tidak valid.', 'danger')
         return redirect(url_for('forgot_password'))
 
-
-@app.route('/test_email')
-def test_email():
-    try:
-        msg = Message('Test Email', recipients=['paangaming123@gmail.com'])
-        msg.body = 'This is a test email sent from Flask app.'
-        mail.send(msg)
-        return "Email sent successfully!"
-    except Exception as e:
-        return f"Failed to send email: {e}"
-
-    
 # Route untuk registrasi
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email' )
-        password = request.form.get('password')
-        hashed_password = generate_password_hash(password)
-
-        # Cek apakah email sudah terdaftar
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            flash('Email sudah terdaftar.', 'danger')
-        else:
-            new_user = User(name=name, email=email, password=hashed_password)
-            db.session.add(new_user)
-            db.session.commit()
-            flash('Registrasi berhasil. Silakan login.', 'success')
-            return redirect(url_for('login'))
-    
-    return render_template('auth/register.html')
+    return auth_controller.register()
 
 # Route untuk login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-
-        # Cari user berdasarkan email
-        user = User.query.filter_by(email=email).first()
-
-        # Verifikasi password
-        if user and check_password_hash(user.password, password):
-            session['user_id'] = user.id
-            session['user_name'] = user.name
-            session['user_role'] = user.role  # Menyimpan role pengguna di session
-
-            flash('Login berhasil!', 'success')
-
-            # Redirect berdasarkan role
-            if user.role == 'super_admin':
-                return redirect(url_for('super_admin_dashboard'))  # Halaman untuk super admin
-            elif user.role == 'store_admin':
-                return redirect(url_for('store_admin_dashboard'))  # Halaman untuk store admin
-            else:
-                return redirect(url_for('home'))  # Halaman untuk user biasa
-
-        else:
-            flash('Email atau password salah.', 'danger')
-    
-    return render_template('auth/login.html')
+    return auth_controller.login()
 
 # Route untuk logout
 @app.route('/logout')
 def logout():
-    session.clear()
-    flash('Anda telah logout.', 'info')
-    return redirect(url_for('login'))
+    return auth_controller.logout()
 
+# Route untuk profile user setting
 @app.route('/profile_settings', methods=['GET', 'POST'])
 def profile_settings():
-    if 'user_id' not in session:
-        flash('You need to log in first.', 'danger')
-        return redirect(url_for('login'))
-
-    user = User.query.get(session['user_id'])
-    form = ProfileForm()
-
-    if form.validate_on_submit():
-        # Update user details
-        user.name = form.name.data
-        user.email = form.email.data
-        user.address = form.address.data
-
-        # Handle profile photo upload
-        if 'profile_photo' in request.files:
-            file = request.files['profile_photo']
-            if file and allowed_file(file.filename):
-                # Generate a unique filename using UUID
-                ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
-                filename = f"{uuid.uuid4().hex}.{ext}"  # Create unique filename
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-                # Update user's profile_photo in the database
-                user.profile_photo = filename
-
-        # Save other updates to the database
-        db.session.commit()
-        flash('Profile updated successfully!', 'success')
-        return redirect(url_for('profile_settings'))
-
-    # Prepopulate the form with current data
-    form.name.data = user.name
-    form.email.data = user.email
-    form.address.data = user.address
-
-    return render_template('profile_settings.html', form=form, user=user)
+    return user_controller.profile_settings()
 
 # Error Handler untuk 404
 @app.errorhandler(404)
@@ -288,7 +184,6 @@ def dashboard():
     admin = User.query.get(user_id)
 
     if admin and admin.role == 'store_admin':
-        # Fetch products associated with this admin
         products = Product.query.filter_by(user_id=admin.id).all()
         return render_template('admin/content/dashboard.html', admin=admin, products=products)
     
@@ -350,8 +245,17 @@ def addproduk():
 
 @app.route('/admin/produk', methods=['GET'])
 def listProduk():
-    # Fetch all products from the database
-    dataProduk = Product.query.all()
+    # Ensure the user is logged in
+    if 'user_id' not in session:
+        return redirect(url_for('login'))  # Redirect to login if user is not logged in
+
+    # Fetch the user from the session
+    user = User.query.get(session['user_id'])
+
+    # Fetch only products that belong to the logged-in user
+    dataProduk = Product.query.filter_by(user_id=user.id).all()
+
+    # Return the filtered products to the template
     return render_template('admin/content/listproduk.html', dataProduk=dataProduk)
 
 # Route to edit a product

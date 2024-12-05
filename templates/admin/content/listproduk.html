@@ -7,6 +7,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>Gambar</th>
                     <th>Nama Barang</th>
                     <th>Harga</th>
                     <th>Kategori</th>
@@ -17,6 +18,13 @@
             <tbody>
                 {% for product in dataProduk %}
                 <tr>
+                    <td>
+                        {% if product.gambar %}
+                            <img src="{{ url_for('static', filename='profile_photos/' + product.gambar) }}" alt="{{ product.nama_barang }}" width="50" height="50">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='asset/image/download.jpg') }}" alt="Default Image" width="50" height="50">
+                        {% endif %}
+                    </td>
                     <td>{{ product.nama_barang }}</td>
                     <td>Rp {{ "{:,}".format(product.harga) }}</td>
                     <td>{{ product.kategori }}</td>
