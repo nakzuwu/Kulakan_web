@@ -256,98 +256,6 @@ def profile_settings():
 
     return render_template('profile_settings.html', form=form, user=user)
 
-# API untuk Register
-@app.route('/api/register', methods=['POST'])
-def api_register():
-    data = request.get_json()  # Mendapatkan data JSON dari body request
-    name = data.get('name')
-    email = data.get('email')
-    password = data.get('password')
-
-    if not name or not email or not password:
-        return jsonify({'status': 'error', 'message': 'Semua field harus diisi'}), 400
-
-    # Hash password
-    hashed_password = generate_password_hash(password)
-
-    # Cek apakah email sudah terdaftar
-    existing_user = User.query.filter_by(email=email).first()
-    if existing_user:
-        return jsonify({'status': 'error', 'message': 'Email sudah terdaftar'}), 400
-
-    # Simpan pengguna baru
-    new_user = User(name=name, email=email, password=hashed_password)
-    db.session.add(new_user)
-    db.session.commit()
-
-    return jsonify({'status': 'success', 'message': 'Registrasi berhasil'}), 201
-
-# API untuk Login
-@app.route('/api/login', methods=['POST'])
-def api_login():
-    data = request.get_json()  # Mendapatkan data JSON dari body request
-    email = data.get('email')
-    password = data.get('password')
-
-    if not email or not password:
-        return jsonify({'status': 'error', 'message': 'Email dan password harus diisi'}), 400
-
-    user = User.query.filter_by(email=email).first()
-    if user and check_password_hash(user.password, password):
-        # Generate token untuk otentikasi
-        payload = {
-            'user_id': user.id,
-            'exp': datetime.utcnow() + timedelta(hours=24)  # Token akan kadaluarsa dalam 24 jam
-        }
-        token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-
-        # Decode token ke dalam format string (untuk dikirim dalam response)
-        return jsonify({
-            'status': 'success',
-            'message': 'Login berhasil',
-            'token': token.decode('utf-8')  # Decode hasil token menjadi string UTF-8
-        }), 200
-
-    return jsonify({'status': 'error', 'message': 'Email atau password salah'}), 401
-# API untuk Logout
-@app.route('/api/logout', methods=['POST'])
-def api_logout():
-    # Logout tidak memerlukan penanganan di backend jika menggunakan token-based auth
-    return jsonify({'status': 'success', 'message': 'Logout berhasil'}), 200
-
-# API untuk Mendapatkan Data User
-@app.route('/api/user', methods=['GET'])
-def api_get_user():
-    # Token harus dikirim melalui header Authorization
-    token = request.headers.get('Authorization')
-
-    if not token:
-        return jsonify({'status': 'error', 'message': 'Token tidak diberikan'}), 401
-
-    try:
-        # Decode token untuk mendapatkan user ID
-        data = jwt.decode(token, app.secret_key, algorithms=['HS256'])
-        user = User.query.get(data['user_id'])
-
-        if not user:
-            return jsonify({'status': 'error', 'message': 'User tidak ditemukan'}), 404
-
-        # Return data pengguna
-        return jsonify({
-            'status': 'success',
-            'data': {
-                'id': user.id,
-                'name': user.name,
-                'email': user.email,
-                'address': user.address,
-                'profile_photo': user.profile_photo
-            }
-        }), 200
-    except jwt.ExpiredSignatureError:
-        return jsonify({'status': 'error', 'message': 'Token telah kadaluarsa'}), 401
-    except jwt.InvalidTokenError:
-        return jsonify({'status': 'error', 'message': 'Token tidak valid'}), 401
-    
 # Error Handler untuk 404
 @app.errorhandler(404)
 def page_not_found(e):
@@ -399,13 +307,19 @@ def addproduk():
         deskripsi = request.form['deskripsi']
 
         # Mendapatkan file gambar
-        file = request.files['gambar']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
+        if 'gambar' in request.files:
+            file = request.files['gambar']
+            if file and allowed_file(file.filename):
+                # Generate a unique filename using UUID
+                ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
+                filename = f"{uuid.uuid4().hex}.{ext}"  # Create unique filename
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+            else:
+                flash('Format file tidak didukung!', 'error')
+                return redirect(request.url)
         else:
-            flash('Format file tidak didukung!', 'error')
+            flash('File gambar wajib diunggah!', 'error')
             return redirect(request.url)
 
         # Mendapatkan user_id dari session
@@ -421,7 +335,7 @@ def addproduk():
             kategori=kategori,
             stok=int(stok),
             deskripsi=deskripsi,
-            gambar=filename,
+            gambar=filename,  # Menyimpan hanya nama file di database
             user_id=user_id  # Menghubungkan produk dengan admin saat ini
         )
         try:
@@ -434,18 +348,63 @@ def addproduk():
 
     return render_template('admin/content/addproduk.html')
 
+@app.route('/admin/produk', methods=['GET'])
+def listProduk():
+    # Fetch all products from the database
+    dataProduk = Product.query.all()
+    return render_template('admin/content/listproduk.html', dataProduk=dataProduk)
+
+# Route to edit a product
+@app.route('/admin/editproduk/<int:id>', methods=['GET', 'POST'])
+def editProduk(id):
+    product = Product.query.get_or_404(id)
+
+    if request.method == 'POST':
+        # Get updated values from the form
+        product.nama_barang = request.form['nama_barang']
+        product.harga = request.form['harga']
+        product.kategori = request.form['kategori']
+        product.stok = request.form['stok']
+        product.deskripsi = request.form['deskripsi']
+
+        # Handle file upload for product image (if necessary)
+        if 'gambar' in request.files:
+            gambar = request.files['gambar']
+            if gambar:
+                gambar_path = 'path/to/save/image'  # Adjust this path to your requirements
+                gambar.save(gambar_path)
+                product.gambar = gambar_path
+
+        # Commit the changes to the database
+        db.session.commit()
+        flash('Produk berhasil diperbarui!', 'success')
+        return redirect(url_for('listProduk'))  # Redirect to the product list
+
+    # Display the edit form with current product data
+    return render_template('admin/content/editproduk.html', product=product)
+
+# Route to delete a product
+@app.route('/admin/deleteproduk/<int:id>', methods=['POST'])
+def deleteProduk(id):
+    product = Product.query.get_or_404(id)
+
+    # Delete the product
+    db.session.delete(product)
+    db.session.commit()
+    flash('Produk berhasil dihapus!', 'success')
+
+    return redirect(url_for('listProduk'))  # Redirect to the product list
+
 with app.app_context():
     db.create_all()
-# addproduk
 
 # edit
-
-# edit
-@app.route('/frontend/detailproduk/<int:id>')
+@app.route('/detailproduk/<int:id>')
 def detailProduk(id):
     dataBs = Product.query.get_or_404(id)
     return render_template('frontend/detailproduk.html', dataBs=dataBs)
-@app.route('/frontend/menuproduk')
+
+@app.route('/menuproduk')
 def menuproduk():
     dataProduk = Product.query.all()
     return render_template('frontend/menuproduk.html', dataProduk=dataProduk)
