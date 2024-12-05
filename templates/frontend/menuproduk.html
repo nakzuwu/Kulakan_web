@@ -30,22 +30,30 @@
     <!-- Product Grid -->
     <div class="product-grid">
         <!-- Repeat this block for each product -->
-         {% for ds in dataProduk%}
-       
-        <a  href="{{url_for('detailProduk', id=ds.id)}}">
-        <div class="product-card" >
-            <div class="product-image">
-                <img src="{{ url_for('static', filename='asset/image/download.jpg') }}" alt="product">
-                <span class="tag new">BARU</span>
-                <span class="tag sale">OBRAL</span>
-            </div>
-            <h3 class="product-name">{{ds.nama_barang}}</h3>
-            <p class="product-price"><span class="price">Rp 20.000</span> <span class="original-price">{{ds.harga}}</span></p>
-            <button class="add-to-cart">Keranjang</button>
-        </div>
-        </a>
-    {%endfor%}
-                
+        {% for ds in dataProduk %}
+        <a href="{{ url_for('detailProduk', id=ds.id) }}" class="product-link">
+                <div class="product-card">
+                    <div class="product-image">
+                        <!-- Mengambil gambar dari database -->
+                        <img src="{{ url_for('static', filename='profile_photos/' ~ ds.gambar) if ds.gambar else url_for('static', filename='asset/image/download.jpg') }}" alt="{{ ds.nama_barang }}">
+                        {% if ds.is_new %}
+                            <span class="tag new">BARU</span>
+                        {% endif %}
+                        {% if ds.is_on_sale %}
+                            <span class="tag sale">OBRAL</span>
+                        {% endif %}
+                    </div>
+                    <h3 class="product-name">{{ ds.nama_barang }}</h3>
+                    <p class="product-price">
+                        <span class="price">Rp {{ "{:,}".format(ds.harga) }}</span>
+                        {% if ds.original_price %}
+                            <span class="original-price">Rp {{ "{:,}".format(ds.original_price) }}</span>
+                        {% endif %}
+                    </p>
+                    <button class="add-to-cart">Keranjang</button>
+                </div>
+            </a>
+        {% endfor %}
         <!-- End Product Card -->
     </div>
 </body>
