@@ -19,13 +19,8 @@
             <h1>Profil</h1>
             <div class="profile-info">
                 <div class="profile-photo">
-                    {% if user.profile_photo %}
-                        <img src="{{ url_for('static', filename='profile_photos/' + user.profile_photo) }}" alt="Profile Photo">
-                    {% else %}
-                        <img src="{{ url_for('static', filename='uploads\default_profile.jpg') }}" alt="Default Profile Photo">
-                    {% endif %}
+                    <img class="profile-photo" src="{{ url_for('static', filename='profile_photos/' + user.profile_photo) }}" alt="Profile Logo" onclick="window.location.href='{{ url_for('profile_settings') }}'">
                 </div>
-                
                 <div class="profile-details">
                     <p><strong>Nama:</strong> {{ user.name }}</p>
                     <p><strong>Email:</strong> {{ user.email }}</p>
@@ -33,6 +28,10 @@
                     {% if user.role != 'user' %}
                         <a href="{{ url_for('dashboard') }}" class="btn">Admin Kulakan</a>
                     {% endif %}
+                </div>
+                <!-- Logout button -->
+                <div class="logout-button">
+                    <a href="{{ url_for('logout') }}" class="btndanger">Logout</a>
                 </div>
             </div>
         </div>

@@ -15,7 +15,11 @@
         </div>
 
         <div class="user">
-            <img src="assets/imgs/customer01.jpg" alt="">
+            {% if admin.profile_photo %}
+                <img class="profile-photo" src="{{ url_for('static', filename='profile_photos/' + admin.profile_photo) }}" alt="Profile Logo">
+            {% else %}
+                <img class="profile-photo" src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" alt="Default Logo">
+            {% endif %}
         </div>
     </div>
 
@@ -161,7 +165,7 @@
 
                 <tr>
                     <td width="60px">
-                        <div class="imgBx"><img src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" alt=""></div>
+                        <div class="imgBx"><img src="{{ url_for('static', filename='uploads/default.jpg') }}" alt=""></div>
                     </td>
                     <td>
                         <h4>Fajar Sadboy <br> <span>Slawi</span></h4>

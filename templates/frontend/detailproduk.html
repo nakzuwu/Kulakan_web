@@ -1,58 +1,64 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/detailproduk.css') }}">
-    <title>{{ dataBs.nama_barang }}</title>
+    <title>KULAKAN - Produk Kami</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/detailProduk.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <a href="{{ url_for('menuproduk') }}" class="back-button">
-        <i class="fa fa-arrow-left"></i> Kembali
-      </a>
+    <!-- Header -->
     <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <h1 class="logo">Kulakan.</h1>
-                <form action="/search" method="get" class="search-bar">
-                    <input type="text" name="query" placeholder="Cari produk atau toko..." required class="search-input">
-                    <button type="submit" class="search-button">
-                    </button>
-                </form>
-            </div>
+        <div class="logo">
+            <a href="{{ url_for('home') }}">Kulakan</a>
+        </div>
+        <div class="search-container">
+            <input type="text" placeholder="Cari produk..." class="search-bar">
+            <a href="{{ url_for('scan') }}" class="camera-icon">
+                <i class="fas fa-camera"></i>
+            </a>
         </div>
     </header>
 
-    <main class="container">
-        <h1 class="page-title">Deskripsi Produk</h1>
-        <div class="product-detail">
-            <!-- Bagian Gambar Produk -->
-            <div class="image-section">
-                <img src="{{ dataBs.gambar_url }}" alt="{{ dataBs.nama_barang }}" class="product-image">
+    <main>
+        <!-- Container Card -->
+        <div class="product-card">
+            <!-- Gambar Produk -->
+            <div class="product-image">
+                <img src="{{ url_for('static', filename='profile_photos/' ~ dataBs.gambar) if dataBs.gambar else url_for('static', filename='asset/image/download.jpg') }}" alt="{{ dataBs.nama_barang }}">
+                {% if dataBs.kategori == 'Baru' %}
+                <span class="tag new">BARU</span>
+                {% elif dataBs.kategori == 'Obral' %}
+                <span class="tag sale">OBRAL</span>
+                {% endif %}
             </div>
-            <!-- Bagian Detail Produk -->
-            <div class="info-section">
-                <h2 class="product-title">{{ dataBs.nama_barang }}</h2>
-                <p class="Deskripsi">{{dataBs.deskripsi}}</p>
-                <p class="product-description">
-                    {{ dataBs.stok }} Stok · {{ dataBs.kategori }} 
-                </p>
-                <p class="product-price">Rp{{ "{:,.0f}".format(dataBs.harga) }}</p>
-                <div class="store-info">
-                    <img src="" alt="{{ dataBs.toko_nama }}" class="store-logo">
-                    <div class="store-details">
-                        <strong>{{ dataBs.toko_nama }}</strong>
-                        <p>{{ dataBs.toko_status }}</p>
-                        <p>{{ dataBs.toko_rating }} ({{ dataBs.toko_ulasan }} Rating)</p>
+
+            <!-- Detail Produk -->
+            <div class="product-info">
+                <h3 class="product-name">{{ dataBs.nama_barang }}</h3>
+                <p class="product-price">Rp {{ "{:,}".format(dataBs.harga) }}</p>
+                <p>Kategori: {{ dataBs.kategori }}</p>
+                <p>Stok: {{ dataBs.stok }}</p>
+                <p>Deskripsi: {{ dataBs.deskripsi[:100] }}...</p>
+
+                <!-- Informasi Toko -->
+                <div class="owner-card">
+                    <img src="{{ url_for('static', filename='profile_photos/' ~ dataBs.owner.profile_photo) }}" alt="{{ dataBs.owner.name }}" class="store-photo">
+                    <div class="owner-info">
+                        <p class="store-name">{{ dataBs.owner.name }}</p>
                     </div>
                 </div>
-                <!-- Tombol Aksi -->
-                <div class="action-buttons">
-                    <button class="btn btn-cart">Keranjang</button>
-                    <button class="btn btn-buy">Tambah Pesanan</button>
+                 <!-- Tombol Cart dan Payment -->
+                 <div class="action-buttons">
+                    <button class="btn-cart">Keranjang</button>
+                    <button class="btn-payment">Bayar</button>
                 </div>
             </div>
         </div>
+
+        <a href="{{ url_for('menuproduk') }}" class="btn">Kembali ke Produk</a>
     </main>
 </body>
 </html>

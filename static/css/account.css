@@ -135,3 +135,32 @@ body {
 .btn-primary:hover {
   background-color: #004600;
 }
+.profile-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-photo {
+  flex-shrink: 0;
+}
+
+.profile-details {
+  flex-grow: 1;
+}
+
+.logout-button {
+  margin-left: 20px;  /* Adjust spacing between profile details and logout button */
+}
+
+.btndanger {
+  background-color: #f44336; /* Red color for the logout button */
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.btndanger:hover {
+  background-color: #d32f2f; /* Darker red on hover */
+}
