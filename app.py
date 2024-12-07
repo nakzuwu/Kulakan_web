@@ -12,6 +12,7 @@ from models.product import Product
 from dotenv import load_dotenv
 from controllers import user_controller
 from controllers import auth_controller
+from controllers import admin_controller
 import os
 import uuid
 import jwt 
@@ -35,7 +36,7 @@ ALLOWED_EXTENSIONS = set(os.getenv('ALLOWED_EXTENSIONS', 'png,jpg,jpeg,gif').spl
 # Other configurations
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/db_kulakan?ssl_disabled=false'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS') == 'True'
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
@@ -55,6 +56,30 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def role_required(role):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Check if user is logged in
+            if 'user_id' not in session:
+                flash("You need to log in to access this page.", "warning")
+                return redirect(url_for('login'))
+            
+            # Fetch the user object (adjust based on your user model)
+            user = User.query.get(session['user_id'])
+            if not user or user.role != role:
+                flash("You do not have permission to access this page.", "danger")
+                return redirect(url_for('home'))
+            
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return jsonify({'status': 'error', 'message': 'Endpoint tidak ditemukan'}), 404
+
 
 @app.route('/')
 def home():
@@ -153,157 +178,33 @@ def logout():
 def profile_settings():
     return user_controller.profile_settings()
 
-# Error Handler untuk 404
-@app.errorhandler(404)
-def page_not_found(e):
-    return jsonify({'status': 'error', 'message': 'Endpoint tidak ditemukan'}), 404
-
-def role_required(role):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            # Check if user is logged in
-            if 'user_id' not in session:
-                flash("You need to log in to access this page.", "warning")
-                return redirect(url_for('login'))
-            
-            # Fetch the user object (adjust based on your user model)
-            user = User.query.get(session['user_id'])
-            if not user or user.role != role:
-                flash("You do not have permission to access this page.", "danger")
-                return redirect(url_for('home'))
-            
-            return func(*args, **kwargs)
-        return wrapper
-    return decorator
-
-@app.route('/admin/content/dashboard')
+@app.route('/admin/dashboard')
 @role_required('store_admin')
 def dashboard():
-    # Get the currently logged-in admin
-    user_id = session.get('user_id')
-    admin = User.query.get(user_id)
+    return admin_controller.dashboard()
 
-    if admin and admin.role == 'store_admin':
-        products = Product.query.filter_by(user_id=admin.id).all()
-        return render_template('admin/content/dashboard.html', admin=admin, products=products)
-    
-    flash("You do not have permission to access this page.", "danger")
-    return redirect(url_for('home'))
-
-# Route untuk form tambah produk
-@app.route('/addproduk', methods=['GET', 'POST'])
+@app.route('/admin/addproduk', methods=['GET', 'POST'])
 @role_required('store_admin')  # Membatasi akses hanya untuk admin
 def addproduk():
-    if request.method == 'POST':
-        nama_barang = request.form['nama_barang']
-        harga = request.form['harga']
-        kategori = request.form['kategori']
-        stok = request.form['stok']
-        deskripsi = request.form['deskripsi']
-
-        # Mendapatkan file gambar
-        if 'gambar' in request.files:
-            file = request.files['gambar']
-            if file and allowed_file(file.filename):
-                # Generate a unique filename using UUID
-                ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
-                filename = f"{uuid.uuid4().hex}.{ext}"  # Create unique filename
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
-            else:
-                flash('Format file tidak didukung!', 'error')
-                return redirect(request.url)
-        else:
-            flash('File gambar wajib diunggah!', 'error')
-            return redirect(request.url)
-
-        # Mendapatkan user_id dari session
-        user_id = session.get('user_id')
-        if not user_id:
-            flash('Anda harus login untuk menambahkan produk!', 'error')
-            return redirect(url_for('login'))
-
-        # Validasi dan tambah produk ke database
-        produk_baru = Product(
-            nama_barang=nama_barang,
-            harga=int(harga),
-            kategori=kategori,
-            stok=int(stok),
-            deskripsi=deskripsi,
-            gambar=filename,  # Menyimpan hanya nama file di database
-            user_id=user_id  # Menghubungkan produk dengan admin saat ini
-        )
-        try:
-            db.session.add(produk_baru)
-            db.session.commit()
-            flash('Produk berhasil ditambahkan!', 'success')
-            return redirect(url_for('addproduk'))
-        except Exception as e:
-            flash(f'Terjadi kesalahan: {e}', 'error')
-
-    return render_template('admin/content/addproduk.html')
+    return admin_controller.addproduk()
 
 @app.route('/admin/produk', methods=['GET'])
+@role_required('store_admin') 
 def listProduk():
-    # Ensure the user is logged in
-    if 'user_id' not in session:
-        return redirect(url_for('login'))  # Redirect to login if user is not logged in
-
-    # Fetch the user from the session
-    user = User.query.get(session['user_id'])
-
-    # Fetch only products that belong to the logged-in user
-    dataProduk = Product.query.filter_by(user_id=user.id).all()
-
-    # Return the filtered products to the template
-    return render_template('admin/content/listproduk.html', dataProduk=dataProduk)
+    return admin_controller.listProduk()
 
 # Route to edit a product
 @app.route('/admin/editproduk/<int:id>', methods=['GET', 'POST'])
+@role_required('store_admin')
 def editProduk(id):
-    product = Product.query.get_or_404(id)
-
-    if request.method == 'POST':
-        # Get updated values from the form
-        product.nama_barang = request.form['nama_barang']
-        product.harga = request.form['harga']
-        product.kategori = request.form['kategori']
-        product.stok = request.form['stok']
-        product.deskripsi = request.form['deskripsi']
-
-        # Handle file upload for product image (if necessary)
-        if 'gambar' in request.files:
-            gambar = request.files['gambar']
-            if gambar:
-                gambar_path = 'path/to/save/image'  # Adjust this path to your requirements
-                gambar.save(gambar_path)
-                product.gambar = gambar_path
-
-        # Commit the changes to the database
-        db.session.commit()
-        flash('Produk berhasil diperbarui!', 'success')
-        return redirect(url_for('listProduk'))  # Redirect to the product list
-
-    # Display the edit form with current product data
-    return render_template('admin/content/editproduk.html', product=product)
+    return admin_controller.editProduk(id)
 
 # Route to delete a product
 @app.route('/admin/deleteproduk/<int:id>', methods=['POST'])
+@role_required('store_admin')
 def deleteProduk(id):
-    product = Product.query.get_or_404(id)
+    return admin_controller.deleteProduk(id)
 
-    # Delete the product
-    db.session.delete(product)
-    db.session.commit()
-    flash('Produk berhasil dihapus!', 'success')
-
-    return redirect(url_for('listProduk'))  # Redirect to the product list
-
-with app.app_context():
-    db.create_all()
-
-# edit
 @app.route('/detailproduk/<int:id>')
 def detailProduk(id):
     dataBs = Product.query.get_or_404(id)
