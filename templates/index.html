@@ -16,9 +16,16 @@
             <nav>
                 <a href="{{ url_for('home') }}">Home</a>
                 <a href="{{ url_for('menuproduk') }}">Produk</a>
-                <a href="{{ url_for('pesanan') }}">Pesanan</a>
+                <div class="dropdown">
+                    <a href="#">Pesanan</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('keranjang') }}">Keranjang</a></li>
+                        <li><a href="#">Riwayat</a></li>
+                    </ul>
+                </div>
                 <a href="{{ url_for('setting') }}">Setting</a>
             </nav>
+            
             <div class="profile-logo">
                 <div class="profile-logo">
                     <p class="user-name">{{ user.name }}</p>

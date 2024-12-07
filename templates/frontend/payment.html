@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KULAKAN - Pembayaran</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/payment.css') }}">
+</head>
+<body>
+    <a href="{{ url_for('home') }}" class="back-button">
+        <i class=""></i> Kembali
+    </a>
+    <div class="payment-container">
+        <h1>Menu Pembayaran</h1>
+        
+        <!-- Alamat Pengiriman -->
+        <div class="section">
+            <h3>Alamat Pengiriman</h3>
+            <p><strong>Nama:</strong> John Doe</p>
+            <p><strong>Alamat:</strong> Jl. Sudirman No. 10, Jakarta</p>
+            <p><strong>Telepon:</strong> 08123456789</p>
+            <a href="#" class="edit-button">Ubah Alamat</a>
+        </div>
+        
+        <!-- Ringkasan Pesanan -->
+        <div class="section">
+            <h3>Ringkasan Pesanan</h3>
+            <div class="order-item">
+                <img src="path/to/image.jpg" alt="Produk" class="product-image">
+                <div class="details">
+                    <p><strong>Beras 50kg</strong></p>
+                    <p>Rp 340.000,00</p>
+                    <p>Jumlah: 1</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metode Pembayaran -->
+        <div class="section">
+            <h3>Metode Pembayaran</h3>
+            <select class="payment-method">
+                <option value="bank_transfer">Transfer Bank</option>
+                <option value="e_wallet">E-Wallet</option>
+                <option value="cod">COD (Bayar di Tempat)</option>
+            </select>
+        </div>
+        
+        <!-- Total Pembayaran -->
+        <div class="section total">
+            <h3>Total Pembayaran</h3>
+            <p><strong>Rp 340.000,00</strong></p>
+        </div>
+        
+        <!-- Tombol Checkout -->
+        <div class="action">
+            <button class="checkout-button">Bayar Sekarang</button>
+        </div>
+    </div>
+</body>
+</html>

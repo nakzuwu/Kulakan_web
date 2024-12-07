@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KULAKAN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/keranjang.css') }}">
+</head>
+<body>
+    <a href="{{ url_for('home') }}" class="back-button">Kembali</a>
+    <div class="order-list">
+        <h1>Daftar Keranjang</h1>
+        <div class="order-card">
+            <div class="order-info">
+                <label class="checkbox-container">
+                    <input type="checkbox" class="order-checkbox">
+                    <span class="checkmark"></span>
+                </label>
+                <img src="path/to/image.jpg" alt="Produk" class="product-image">
+                <div class="order-details">
+                    <h3>Toko Maep Maju Jaya</h3>
+                    <p>Beras 50 kg</p>
+                    <p><strong>Total Produk :</strong> <span class="price">Rp 340.000,00</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
