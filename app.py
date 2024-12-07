@@ -322,9 +322,13 @@ def setting():
 def scan():
     return render_template('frontend/scan.html')
 
-@app.route('/pesanan')
-def pesanan():
-    return render_template('frontend/pesanan.html')
+@app.route('/keranjang')
+def keranjang():
+    return render_template('frontend/keranjang.html')
+
+@app.route('/payment')
+def payment():
+    return render_template('frontend/payment.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
