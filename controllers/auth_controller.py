@@ -1,5 +1,5 @@
 import re
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from models.user import User
 from models import db
@@ -88,3 +88,57 @@ def logout():
     session.clear()
     flash('Anda telah logout.', 'info')
     return redirect(url_for('login'))
+
+def api_register():
+    data = request.json
+    name = data.get('name')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not name or not email or not password:
+        return jsonify({'error': 'All fields are required.'}), 400
+
+    if not validate_email(email):
+        return jsonify({'error': 'Invalid email address.'}), 400
+
+    if not validate_password(password):
+        return jsonify({'error': 'Password must be at least 8 characters long, contain at least one uppercase letter, and one digit.'}), 400
+
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        return jsonify({'error': 'Email already registered.'}), 400
+
+    hashed_password = generate_password_hash(password)
+    new_user = User(name=name, email=email, password=hashed_password)
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({'message': 'Registration successful. Please login.'}), 201
+
+def api_login():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'error': 'Email and password are required.'}), 400
+
+    if not validate_email(email):
+        return jsonify({'error': 'Invalid email address.'}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user or not check_password_hash(user.password, password):
+        return jsonify({'error': 'Invalid email or password.'}), 401
+
+    session['user_id'] = user.id
+    session['user_name'] = user.name
+    session['user_role'] = user.role
+
+    response = make_response(jsonify({'message': 'Login successful!', 'role': user.role}), 200)
+    response.set_cookie('session', session.sid, httponly=True)  # Securely set the session cookie
+    return response
+
+
+def api_logout():
+    session.clear()
+    return jsonify({'message': 'You have been logged out.'}), 200

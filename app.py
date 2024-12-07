@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask_session import Session
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
@@ -20,13 +21,8 @@ import jwt
 app = Flask(__name__)
 app.secret_key = 'capstonekel7'
 
-mail = Mail(app)
-
-# Inisialisasi Serializer untuk token
 s = URLSafeTimedSerializer(app.secret_key)
 
-# Load .env file
-# Inisialisasi Flask-Mail
 load_dotenv()
 
 # Access environment variables
@@ -37,7 +33,6 @@ ALLOWED_EXTENSIONS = set(os.getenv('ALLOWED_EXTENSIONS', 'png,jpg,jpeg,gif').spl
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
-
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS') == 'True'
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
@@ -45,7 +40,15 @@ app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+app.config['SESSION_TYPE'] = 'filesystem'  # Use file system to store sessions
+app.config['SESSION_PERMANENT'] = False    # Sessions are not permanent
+app.config['SESSION_USE_SIGNER'] = True    # Use a signed session cookie
+app.config['SESSION_KEY_PREFIX'] = 'myapp_'  # Prefix for session keys
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)  # Session expires in 1 hour
+Session(app)
 
+
+mail = Mail(app)
 
 db.init_app(app)
 with app.app_context():
@@ -80,10 +83,44 @@ def role_required(role):
 def page_not_found(e):
     return jsonify({'status': 'error', 'message': 'Endpoint tidak ditemukan'}), 404
 
+#Page
 
 @app.route('/')
 def home():
     return user_controller.home()
+
+@app.route('/profile_settings', methods=['GET', 'POST'])
+def profile_settings():
+    return user_controller.profile_settings()
+
+
+@app.route('/detailproduk/<int:id>')
+def detailProduk(id):
+    dataBs = Product.query.get_or_404(id)
+    return render_template('frontend/detailproduk.html', dataBs=dataBs)
+
+@app.route('/menuproduk')
+def menuproduk():
+    dataProduk = Product.query.all()
+    return render_template('frontend/menuproduk.html', dataProduk=dataProduk)
+
+@app.route('/setting')
+def setting():
+    return render_template('frontend/setting.html')
+
+@app.route('/scan')
+def scan():
+    return render_template('frontend/scan.html')
+
+@app.route('/keranjang')
+def keranjang():
+    return render_template('frontend/keranjang.html')
+
+@app.route('/payment')
+def payment():
+    return render_template('frontend/payment.html')
+
+#auth
 
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
@@ -91,37 +128,35 @@ def forgot_password():
         email = request.form.get('email')
         user = User.query.filter_by(email=email).first()
 
-        if user:
-            try:
-                token = jwt.encode(
-                    {
-                        "user_id": user.id,
-                        "exp": datetime.utcnow() + timedelta(hours=1)
-                    },
-                    app.config['SECRET_KEY'], algorithm='HS256'
-                )
-
-                # Generate the password reset link
-                reset_url = url_for('reset_password', token=token, _external=True)
-
-                # Send reset password email
-                msg = Message('Reset Password', recipients=[email])
-                msg.body = f'Klik tautan berikut untuk mereset password Anda: {reset_url}'
-                mail.send(msg)
-
-                flash('Instruksi reset password telah dikirim ke email Anda.', 'info')
-            except Exception as e:
-                flash(f'Gagal mengirim email: {str(e)}', 'danger')
-        else:
+        if not user:
             flash('Email tidak ditemukan.', 'danger')
+            return redirect(url_for('forgot_password'))
+
+        try:
+            token = jwt.encode(
+                {"user_id": user.id, "exp": datetime.utcnow() + timedelta(hours=1)},
+                app.config['SECRET_KEY'],
+                algorithm='HS256'
+            )
+            reset_url = url_for('reset_password', token=token, _external=True)
+
+            # Send email
+            msg = Message('Reset Password', recipients=[email])
+            msg.body = f'Klik tautan berikut untuk mereset password Anda: {reset_url}'
+            mail.send(msg)
+
+            flash('Instruksi reset password telah dikirim ke email Anda.', 'info')
+        except Exception as e:
+            flash(f'Gagal mengirim email: {str(e)}', 'danger')
+            app.logger.error(f"Error during email sending: {str(e)}")
+
         return redirect(url_for('forgot_password'))
-    
+
     return render_template('auth/forgot_password.html')
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     try:
-        # Decode JWT token to extract user ID
         data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
         user = User.query.get(data['user_id'])
 
@@ -133,19 +168,16 @@ def reset_password(token):
             new_password = request.form.get('password')
             confirm_password = request.form.get('confirm_password')
 
-            # Validate password match and length
             if not new_password or new_password != confirm_password:
                 flash('Password tidak cocok atau kosong.', 'danger')
-                return redirect(url_for('reset_password', token=token))
+                return render_template('auth/reset_password.html', token=token)
 
             if len(new_password) < 6:
                 flash('Password harus minimal 6 karakter.', 'danger')
-                return redirect(url_for('reset_password', token=token))
+                return render_template('auth/reset_password.html', token=token)
 
-            # Hash and update the user's password
             user.password = generate_password_hash(new_password)
             db.session.commit()
-
             flash('Password berhasil diubah. Silakan login.', 'success')
             return redirect(url_for('login'))
 
@@ -157,26 +189,35 @@ def reset_password(token):
     except jwt.InvalidTokenError:
         flash('Token tidak valid.', 'danger')
         return redirect(url_for('forgot_password'))
+    except Exception as e:
+        flash(f"Terjadi kesalahan: {str(e)}", 'danger')
+        return redirect(url_for('forgot_password'))
 
-# Route untuk registrasi
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     return auth_controller.register()
 
-# Route untuk login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     return auth_controller.login()
 
-# Route untuk logout
 @app.route('/logout')
 def logout():
     return auth_controller.logout()
 
-# Route untuk profile user setting
-@app.route('/profile_settings', methods=['GET', 'POST'])
-def profile_settings():
-    return user_controller.profile_settings()
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    return auth_controller.api_register()
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    return auth_controller.api_login()
+
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    return auth_controller.api_logout()
+
+#admin
 
 @app.route('/admin/dashboard')
 @role_required('store_admin')
@@ -204,32 +245,6 @@ def editProduk(id):
 @role_required('store_admin')
 def deleteProduk(id):
     return admin_controller.deleteProduk(id)
-
-@app.route('/detailproduk/<int:id>')
-def detailProduk(id):
-    dataBs = Product.query.get_or_404(id)
-    return render_template('frontend/detailproduk.html', dataBs=dataBs)
-
-@app.route('/menuproduk')
-def menuproduk():
-    dataProduk = Product.query.all()
-    return render_template('frontend/menuproduk.html', dataProduk=dataProduk)
-
-@app.route('/setting')
-def setting():
-    return render_template('frontend/setting.html')
-
-@app.route('/scan')
-def scan():
-    return render_template('frontend/scan.html')
-
-@app.route('/keranjang')
-def keranjang():
-    return render_template('frontend/keranjang.html')
-
-@app.route('/payment')
-def payment():
-    return render_template('frontend/payment.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
