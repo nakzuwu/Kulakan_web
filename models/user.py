@@ -1,5 +1,4 @@
-from models import db  # db diimpor dari file utama
-from app import bcrypt  # Impor bcrypt dari app
+from models import db
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -14,21 +13,11 @@ class User(db.Model):
     # Relationship to fetch products
     products = db.relationship('Product', backref='owner', lazy=True)
 
-    def __init__(self, name, email, password, address=None, profile_photo='default.jpg', role='user'):
+
+    def __init__(self, name, email, password, address=None, profile_photo='blank.jpg', role='user'):
         self.name = name
         self.email = email
-        self.set_password(password)  # Gunakan metode untuk hashing password
+        self.password = password
         self.address = address
         self.profile_photo = profile_photo
         self.role = role  
-
-    def set_password(self, password):
-        """Hash the password before saving it."""
-        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-    def check_password(self, password):
-        """Verify the hashed password."""
-        return bcrypt.check_password_hash(self.password, password)
-
-    def __repr__(self):
-        return f"User('{self.email}', '{self.name}')"

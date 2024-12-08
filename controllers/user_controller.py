@@ -1,14 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import render_template, request, redirect, url_for, session, flash, current_app
 from models.user import User
 from models import db
 from form import ProfileForm
 import os
 import uuid
-import app
 
+
+ALLOWED_EXTENSIONS = set(os.getenv('ALLOWED_EXTENSIONS', 'png,jpg,jpeg,gif').split(','))
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def get_user_from_session():
     user_id = session.get('user_id')
@@ -44,7 +45,7 @@ def profile_settings():
                 # Generate a unique filename using UUID
                 ext = file.filename.rsplit('.', 1)[1].lower()  # Get file extension
                 filename = f"{uuid.uuid4().hex}.{ext}"  # Create unique filename
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
 
                 # Update user's profile_photo in the database
                 user.profile_photo = filename
@@ -60,4 +61,3 @@ def profile_settings():
     form.address.data = user.address
 
     return render_template('profile_settings.html', form=form, user=user)
-
