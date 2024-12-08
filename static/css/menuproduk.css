@@ -101,6 +101,7 @@ body {
 .product-card {
     width: 250px; /* Tentukan lebar tetap */
     height: 350px; /* Tentukan tinggi tetap */
+    margin-bottom: 20px;
     border: 1px solid #ddd;
     padding: 15px;
     text-align: center;

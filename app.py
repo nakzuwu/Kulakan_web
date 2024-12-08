@@ -7,11 +7,11 @@ from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from form import ProfileForm
 from models import db
-from models.user import User
 from models.product import Product
 from dotenv import load_dotenv
 from controllers import user_controller
 from controllers import auth_controller
+from flask_bcrypt import Bcrypt
 import os
 import uuid
 import jwt 
@@ -21,6 +21,9 @@ app.secret_key = 'capstonekel7'
 
 mail = Mail(app)
 
+bcrypt = Bcrypt(app)
+
+from models.user import User
 # Inisialisasi Serializer untuk token
 s = URLSafeTimedSerializer(app.secret_key)
 
@@ -142,6 +145,28 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     return auth_controller.login()
+
+@app.route('/api/login', methods=['POST'])
+def loginApi():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user or not user.check_password(password):
+        return jsonify({'message': 'Email atau Password Salah!', 'status': 'danger'}), 401
+
+
+
+    return jsonify({
+        'message': 'Login berhasil!',
+        'status': 'success',
+        'user': {
+            "id": user.id,
+            "email": user.email
+            }
+    }), 200
 
 # Route untuk logout
 @app.route('/logout')
