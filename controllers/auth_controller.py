@@ -7,11 +7,7 @@ from models import db
 from datetime import datetime, timedelta
 import jwt 
 
-
-mail = Mail(app)
-
 #web
-
 
 def validate_email(email):
     # Email regex pattern to match valid email addresses
@@ -96,38 +92,6 @@ def logout():
     session.clear()
     flash('Anda telah logout.', 'info')
     return redirect(url_for('login'))
-
-def forgot_password():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        user = User.query.filter_by(email=email).first()
-
-        if not user:
-            flash('Email tidak ditemukan.', 'danger')
-            return redirect(url_for('forgot_password'))
-
-        try:
-            # Generate JWT token
-            token = jwt.encode(
-                {"user_id": user.id, "exp": datetime.utcnow() + timedelta(hours=1)},
-                current_app.config['SECRET_KEY'],
-                algorithm='HS256'
-            )
-            reset_url = url_for('reset_password', token=token, _external=True)
-
-            # Send email
-            msg = Message('Reset Password', recipients=[email])
-            msg.body = f'Klik tautan berikut untuk mereset password Anda: {reset_url}'
-            mail.send(msg)  # Use the imported mail object
-
-            flash('Instruksi reset password telah dikirim ke email Anda.', 'info')
-        except Exception as e:
-            flash(f'Gagal mengirim email: {str(e)}', 'danger')
-            current_app.logger.error(f"Error during email sending: {str(e)}")
-
-        return redirect(url_for('forgot_password'))
-
-    return render_template('auth/forgot_password.html')
 
 def reset_password(token):
     try:

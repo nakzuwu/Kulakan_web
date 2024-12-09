@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_session import Session
 from functools import wraps
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
 from datetime import datetime, timedelta
@@ -15,6 +14,7 @@ from controllers import user_controller
 from controllers import auth_controller
 from controllers import admin_controller
 import os
+import jwt
 
 app = Flask(__name__)
 app.secret_key = 'capstonekel7'
@@ -90,6 +90,9 @@ def home():
 def profile_settings():
     return user_controller.profile_settings()
 
+@app.route('/api/profile', methods=['GET', 'POST'])
+def profile_settings_api():
+    return user_controller.profile_settings_api()
 
 @app.route('/detailproduk/<int:id>')
 def detailProduk(id):
@@ -121,11 +124,40 @@ def payment():
 
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
-    return auth_controller.forgot_password()
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            flash('Email tidak ditemukan.', 'danger')
+            return redirect(url_for('forgot_password'))
+
+        try:
+            # Generate JWT token
+            token = jwt.encode(
+                {"user_id": user.id, "exp": datetime.utcnow() + timedelta(hours=1)},
+                app.config['SECRET_KEY'],
+                algorithm='HS256'
+            )
+            reset_url = url_for('reset_password', token=token, _external=True)
+
+            # Send email
+            msg = Message('Reset Password', recipients=[email])
+            msg.body = f'Klik tautan berikut untuk mereset password Anda: {reset_url}'
+            mail.send(msg)  # Use the imported mail object
+
+            flash('Instruksi reset password telah dikirim ke email Anda.', 'info')
+        except Exception as e:
+            flash(f'Gagal mengirim email: {str(e)}', 'danger')
+            app.logger.error(f"Error during email sending: {str(e)}")
+
+        return redirect(url_for('forgot_password'))
+
+    return render_template('auth/forgot_password.html')
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
-    return auth_controller.reset_password()
+    return auth_controller.reset_password(token)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
