@@ -151,8 +151,14 @@ body {
     gap: 10px;
 }
 
+.cart-summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; /* Mengatur jarak antar tombol */
+}
+
 .btn-cart, .btn-payment {
-    width: 48%;
+    flex: 1; /* Membuat kedua tombol mengisi ruang yang sama */
     padding: 10px;
     font-size: 14px;
     font-weight: 600;

@@ -1,9 +1,13 @@
 import re
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, make_response
+from flask import render_template, request, redirect, url_for, session, flash, jsonify, make_response, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_mail import Mail, Message
 from models.user import User
 from models import db
+from datetime import datetime, timedelta
+import jwt 
 
+#web
 
 def validate_email(email):
     # Email regex pattern to match valid email addresses
@@ -85,9 +89,56 @@ def login():
     return render_template('auth/login.html')
 
 def logout():
+    # Clear the session data
     session.clear()
-    flash('Anda telah logout.', 'info')
-    return redirect(url_for('login'))
+
+    # Remove the cart cookie (if exists)
+    response = make_response(redirect(url_for('login')))
+    response.delete_cookie('cart')  # Delete the cart cookie
+
+    flash('Anda telah logout.', 'info')  # Flash message for the user
+
+    return response
+
+def reset_password(token):
+    try:
+        data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        user = User.query.get(data['user_id'])
+
+        if not user:
+            flash('Token tidak valid atau telah kadaluarsa.', 'danger')
+            return redirect(url_for('forgot_password'))
+
+        if request.method == 'POST':
+            new_password = request.form.get('password')
+            confirm_password = request.form.get('confirm_password')
+
+            if not new_password or new_password != confirm_password:
+                flash('Password tidak cocok atau kosong.', 'danger')
+                return render_template('auth/reset_password.html', token=token)
+
+            if len(new_password) < 6:
+                flash('Password harus minimal 6 karakter.', 'danger')
+                return render_template('auth/reset_password.html', token=token)
+
+            user.password = generate_password_hash(new_password)
+            db.session.commit()
+            flash('Password berhasil diubah. Silakan login.', 'success')
+            return redirect(url_for('login'))
+
+        return render_template('auth/reset_password.html', token=token)
+
+    except jwt.ExpiredSignatureError:
+        flash('Token telah kadaluarsa.', 'danger')
+        return redirect(url_for('forgot_password'))
+    except jwt.InvalidTokenError:
+        flash('Token tidak valid.', 'danger')
+        return redirect(url_for('forgot_password'))
+    except Exception as e:
+        flash(f"Terjadi kesalahan: {str(e)}", 'danger')
+        return redirect(url_for('forgot_password'))
+
+#api
 
 def api_register():
     data = request.json
@@ -142,3 +193,4 @@ def api_login():
 def api_logout():
     session.clear()
     return jsonify({'message': 'You have been logged out.'}), 200
+

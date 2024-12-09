@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_session import Session
 from functools import wraps
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
 from datetime import datetime, timedelta
@@ -14,9 +13,10 @@ from dotenv import load_dotenv
 from controllers import user_controller
 from controllers import auth_controller
 from controllers import admin_controller
+# from controllers import superadmin_controller
+from controllers import checkout_controller
 import os
-import uuid
-import jwt 
+import jwt
 
 app = Flask(__name__)
 app.secret_key = 'capstonekel7'
@@ -46,7 +46,6 @@ app.config['SESSION_USE_SIGNER'] = True    # Use a signed session cookie
 app.config['SESSION_KEY_PREFIX'] = 'myapp_'  # Prefix for session keys
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)  # Session expires in 1 hour
 Session(app)
-
 
 mail = Mail(app)
 
@@ -93,6 +92,9 @@ def home():
 def profile_settings():
     return user_controller.profile_settings()
 
+@app.route('/api/profile', methods=['GET', 'POST'])
+def profile_settings_api():
+    return user_controller.profile_settings_api()
 
 @app.route('/detailproduk/<int:id>')
 def detailProduk(id):
@@ -112,13 +114,25 @@ def setting():
 def scan():
     return render_template('frontend/scan.html')
 
-@app.route('/keranjang')
+@app.route('/keranjang', methods=['GET', 'POST'])
 def keranjang():
-    return render_template('frontend/keranjang.html')
+    return checkout_controller.keranjang()
 
-@app.route('/payment')
+@app.route('/add_to_cart/<int:product_id>', methods=['POST'])
+def add_to_cart(product_id):
+    return checkout_controller.add_to_cart(product_id)
+
+@app.route('/update_cart', methods=['POST'])
+def update_cart():
+    return checkout_controller.update_cart()
+
+@app.route('/process_payment/<float:total>', methods=['GET'])
+def process_payment(total):
+    return checkout_controller.process_payment(total)
+
+@app.route('/payment', methods=['GET', 'POST'])
 def payment():
-    return render_template('frontend/payment.html')
+    return checkout_controller.payment()
 
 @app.route('/riwayat')
 def riwayat():
@@ -136,6 +150,7 @@ def forgot_password():
             return redirect(url_for('forgot_password'))
 
         try:
+            # Generate JWT token
             token = jwt.encode(
                 {"user_id": user.id, "exp": datetime.utcnow() + timedelta(hours=1)},
                 app.config['SECRET_KEY'],
@@ -146,7 +161,7 @@ def forgot_password():
             # Send email
             msg = Message('Reset Password', recipients=[email])
             msg.body = f'Klik tautan berikut untuk mereset password Anda: {reset_url}'
-            mail.send(msg)
+            mail.send(msg)  # Use the imported mail object
 
             flash('Instruksi reset password telah dikirim ke email Anda.', 'info')
         except Exception as e:
@@ -159,42 +174,7 @@ def forgot_password():
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
-    try:
-        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-        user = User.query.get(data['user_id'])
-
-        if not user:
-            flash('Token tidak valid atau telah kadaluarsa.', 'danger')
-            return redirect(url_for('forgot_password'))
-
-        if request.method == 'POST':
-            new_password = request.form.get('password')
-            confirm_password = request.form.get('confirm_password')
-
-            if not new_password or new_password != confirm_password:
-                flash('Password tidak cocok atau kosong.', 'danger')
-                return render_template('auth/reset_password.html', token=token)
-
-            if len(new_password) < 6:
-                flash('Password harus minimal 6 karakter.', 'danger')
-                return render_template('auth/reset_password.html', token=token)
-
-            user.password = generate_password_hash(new_password)
-            db.session.commit()
-            flash('Password berhasil diubah. Silakan login.', 'success')
-            return redirect(url_for('login'))
-
-        return render_template('auth/reset_password.html', token=token)
-
-    except jwt.ExpiredSignatureError:
-        flash('Token telah kadaluarsa.', 'danger')
-        return redirect(url_for('forgot_password'))
-    except jwt.InvalidTokenError:
-        flash('Token tidak valid.', 'danger')
-        return redirect(url_for('forgot_password'))
-    except Exception as e:
-        flash(f"Terjadi kesalahan: {str(e)}", 'danger')
-        return redirect(url_for('forgot_password'))
+    return auth_controller.reset_password(token)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -248,6 +228,28 @@ def editProduk(id):
 @role_required('store_admin')
 def deleteProduk(id):
     return admin_controller.deleteProduk(id)
+
+# superadmin
+@app.route('/listakun')
+def listakun():
+    return render_template('superadmin/content/listakun.html')
+
+# @app.route('/superadmin/listakun', methods=['GET'])
+# @role_required('super_admin')
+# def listakun():
+#     return superadmin_controller.listakun()
+
+# @app.route('/superadmin/editakun/<int:id>', methods=['GET', 'POST'])
+# @role_required('super_admin')
+# def editakun(id):
+#     return superadmin_controller.editakun(id)
+
+# @app.route('/superadmin/deleteakun/<int:id>', methods=['POST'])
+# @role_required('super_admin')
+# def deleteakun(id):
+#     return superadmin_controller.deleteakun(id)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

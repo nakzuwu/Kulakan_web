@@ -1,0 +1,45 @@
+{% extends '/superadmin/superadmin.html' %}
+
+{% block content %}
+<div class="main">
+    <div class="product-list">
+        <h2 class="title">Daftar Akun</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nama Pengguna</th>
+                    <th>E-mail</th>
+                    <th>Password</th>
+                    <th>Alamat</th>
+                    <th>Role</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in dataProduk %}
+                <tr>
+                    <td>
+                        {% if product.gambar %}
+                            <img src="{{ url_for('static', filename='profile_photos/' + product.gambar) }}" alt="{{ product.nama_barang }}" class="product-image">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='asset/image/download.jpg') }}" alt="Default Image" class="product-image">
+                        {% endif %}
+                    </td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.password }}</td>
+                    <td>{{ user.address }}</td>
+                    <td>{{ user.role }}</td>
+                    <td class="actions">
+                        <a href="{{ url_for('editProduk', id=product.id) }}" class="btn-edit">Edit</a>
+                        <form method="POST" action="{{ url_for('deleteProduk', id=product.id) }}" style="display:inline-block;">
+                            <button type="submit" class="btn-delete" onclick="return confirm('Yakin ingin menghapus produk ini?')">Hapus</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
