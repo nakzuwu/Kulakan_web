@@ -125,9 +125,13 @@ def add_to_cart(product_id):
 def update_cart():
     return checkout_controller.update_cart()
 
-@app.route('/payment')
+@app.route('/process_payment/<float:total>', methods=['GET'])
+def process_payment(total):
+    return checkout_controller.process_payment(total)
+
+@app.route('/payment', methods=['GET', 'POST'])
 def payment():
-    return render_template('frontend/payment.html')
+    return checkout_controller.payment()
 
 #auth
 

@@ -89,9 +89,16 @@ def login():
     return render_template('auth/login.html')
 
 def logout():
+    # Clear the session data
     session.clear()
-    flash('Anda telah logout.', 'info')
-    return redirect(url_for('login'))
+
+    # Remove the cart cookie (if exists)
+    response = make_response(redirect(url_for('login')))
+    response.delete_cookie('cart')  # Delete the cart cookie
+
+    flash('Anda telah logout.', 'info')  # Flash message for the user
+
+    return response
 
 def reset_password(token):
     try:
