@@ -14,7 +14,7 @@ class User(db.Model):
     products = db.relationship('Product', backref='owner', lazy=True)
 
 
-    def __init__(self, name, email, password, address=None, profile_photo='blank.jpg', role='user'):
+    def __init__(self, name, email, password, address=None, profile_photo='default.jpg', role='user'):
         self.name = name
         self.email = email
         self.password = password

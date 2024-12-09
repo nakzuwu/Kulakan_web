@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from controllers import user_controller
 from controllers import auth_controller
 from controllers import admin_controller
+from controllers import checkout_controller
 import os
 import jwt
 
@@ -112,9 +113,17 @@ def setting():
 def scan():
     return render_template('frontend/scan.html')
 
-@app.route('/keranjang')
+@app.route('/keranjang', methods=['GET', 'POST'])
 def keranjang():
-    return render_template('frontend/keranjang.html')
+    return checkout_controller.keranjang()
+
+@app.route('/add_to_cart/<int:product_id>', methods=['POST'])
+def add_to_cart(product_id):
+    return checkout_controller.add_to_cart(product_id)
+
+@app.route('/update_cart', methods=['POST'])
+def update_cart():
+    return checkout_controller.update_cart()
 
 @app.route('/payment')
 def payment():
