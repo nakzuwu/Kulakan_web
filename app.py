@@ -120,8 +120,11 @@ def keranjang():
 def payment():
     return render_template('frontend/payment.html')
 
-#auth
+@app.route('/riwayat')
+def riwayat():
+    return render_template('/frontend/riwayat.html')
 
+#auth
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
