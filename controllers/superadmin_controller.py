@@ -8,14 +8,18 @@ import uuid
 import os
 
 # List all user accounts
+
 def listakun():
-    # if 'user_id' not in session or session['role'] != 'super_admin':
-    #     return redirect(url_for('login'))
+    user_id = session.get('user_id')
+    super_admin = User.query.get(user_id)
+
+    # Cek apakah user adalah super admin
+    if super_admin and super_admin.role == 'super_admin':
+        dataAkun = User.query.all()  # Ambil semua data user
+        return render_template('superadmin/content/listakun.html', super_admin=super_admin, dataAkun=dataAkun)
     
-    dataAkun = User.query.all()  # Fetch all user accounts
-
-    return render_template('superadmin/content/listakun.html', dataAkun=dataAkun)
-
+    flash("You do not have permission to access this page.", "danger")
+    return redirect(url_for('login'))
 
 
 # Edit user account
