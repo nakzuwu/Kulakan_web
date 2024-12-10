@@ -523,13 +523,26 @@ nav a {
     background-color: #2f4f2f;
 }
 
-.profile-logo img {
-    width: 40px;
-    height: 40px;
-    object-fit: cover; /* Maintains aspect ratio while filling the container */
-    border-radius: 50%; /* Makes the image circular, optional */
-    border: 2px solid #ddd; /* Optional: Adds a border for better appearance */
+.profile-logo {
+    display: flex;
+    align-items: center; /* Vertikal tengah */
 }
+
+.profile-logo img {
+    width: 50px; /* Atur ukuran foto */
+    height: 50px;
+    border-radius: 50%; /* Foto menjadi lingkaran */
+    margin-right: 10px; /* Jarak antara foto dan teks */
+}
+
+.profile-logo p {
+    margin: 0;
+    font-size: 16px; /* Sesuaikan ukuran teks */
+    font-weight: 600;
+    color: #4CAF50; /* Warna teks (opsional) */
+    margin-right: 10px;
+}
+
 
 .profile-photo img {
     width: 200px;
@@ -554,4 +567,20 @@ nav a {
     object-fit: cover;
     border-radius: 10px;
     border: 2px solid #ddd;
+}
+.profile-logo {
+    display: flex;
+    align-items: center;
+}
+
+.user-name {
+    margin-right: 10px; /* Adjust the space between name and photo */
+    font-weight: bold;
+}
+
+.profile-photo {
+    width: 40px; /* Adjust photo size as needed */
+    height: 40px; /* Adjust photo size as needed */
+    border-radius: 50%;
+    cursor: pointer;
 }
