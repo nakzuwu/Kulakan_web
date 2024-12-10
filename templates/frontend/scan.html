@@ -9,6 +9,9 @@
   <title>Fitur Scan</title>
 </head>
 <body>
+  <a href="{{ url_for('menuproduk') }}" class="back-button">
+    <i class="fa fa-arrow-left"></i> Kembali
+  </a>
   <div class="scan-container">
     <div class="camera-icon">
         <img src="{{ url_for('static', filename='asset/image/camera.png') }}" alt="camera">

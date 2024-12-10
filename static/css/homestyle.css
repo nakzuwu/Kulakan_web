@@ -36,12 +36,44 @@ header {
     color: #69BF5E; /* Warna hijau */
 }
 
+nav {
+    display: flex;
+    gap: 15px;
+}
 nav a {
     margin: 0 15px;
     text-decoration: none;
     color: #004600;
     font-weight: 500;
 }
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 10px;
+    list-style-type: none;
+    margin: 0;
+}
+
+.dropdown-menu li {
+    margin: 5px 0;
+}
+
+.dropdown-menu a {
+    text-decoration: none;
+    color: #004600;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
 
 .sign-in {
     padding: 10px 20px;
