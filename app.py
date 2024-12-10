@@ -233,35 +233,18 @@ def editProduk(id):
 def deleteProduk(id):
     return admin_controller.deleteProduk(id)
 
-# superadmin
-# @app.route('/listakun')
-# def listakun():
-#     return render_template('superadmin/content/listakun.html')
-
 @app.route('/superadmin/listakun', methods=['GET'])
-<<<<<<< HEAD
-#@role_required('super_admin')
-=======
 @role_required('super_admin')
->>>>>>> c75fdbcb1b76f2c4833dddeeba0d021d43a59884
 def listakun():
     return superadmin_controller.listakun()
 
 @app.route('/superadmin/editakun/<int:id>', methods=['GET', 'POST'])
-<<<<<<< HEAD
-#@role_required('super_admin')
-=======
 @role_required('super_admin')
->>>>>>> c75fdbcb1b76f2c4833dddeeba0d021d43a59884
 def editakun(id):
     return superadmin_controller.editakun(id)
 
 @app.route('/superadmin/deleteakun/<int:id>', methods=['POST'])
-<<<<<<< HEAD
-#@role_required('super_admin')
-=======
 @role_required('super_admin')
->>>>>>> c75fdbcb1b76f2c4833dddeeba0d021d43a59884
 def deleteakun(id):
     return superadmin_controller.deleteakun(id)
 
