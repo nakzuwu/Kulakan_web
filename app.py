@@ -221,13 +221,11 @@ def addproduk():
 def listProduk():
     return admin_controller.listProduk()
 
-# Route to edit a product
 @app.route('/admin/editproduk/<int:id>', methods=['GET', 'POST'])
 @role_required('store_admin')
 def editProduk(id):
     return admin_controller.editProduk(id)
 
-# Route to delete a product
 @app.route('/admin/deleteproduk/<int:id>', methods=['POST'])
 @role_required('store_admin')
 def deleteProduk(id):
@@ -247,8 +245,6 @@ def editakun(id):
 @role_required('super_admin')
 def deleteakun(id):
     return superadmin_controller.deleteakun(id)
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
