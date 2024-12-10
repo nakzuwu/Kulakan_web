@@ -181,3 +181,75 @@ h1 {
     object-fit: cover;
 }
 
+/* General Styling for Quantity Control */
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Label Styling */
+.quantity-control label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #004600;
+}
+
+/* Input Field Styling */
+.quantity-input {
+    width: 40px;
+    height: 20px;
+    font-size: 14px;
+    text-align: center;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    color: #004600;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* Input Field Hover and Focus */
+.quantity-input:hover {
+    border-color: #4CAF50;
+    background-color: #fff;
+}
+.quantity-input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.2);
+}
+
+/* Checkout Button Styling */
+.cart-summary h3 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #004600;
+}
+.cart-summary #subtotal {
+    font-weight: bold;
+    color: #4CAF50;
+}
+.btn-checkout {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: #fff;
+    font-size: 1em;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-checkout:hover {
+    background-color: #388E3C;
+    transform: translateY(-2px);
+}
+
+.btn-checkout:active {
+    background-color: #2E7D32;
+    transform: translateY(0);
+}

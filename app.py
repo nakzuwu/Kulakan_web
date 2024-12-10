@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from controllers import user_controller
 from controllers import auth_controller
 from controllers import admin_controller
-# from controllers import superadmin_controller
+from controllers import superadmin_controller
 from controllers import checkout_controller
 import os
 import jwt
@@ -109,6 +109,10 @@ def menuproduk():
 @app.route('/setting')
 def setting():
     return render_template('frontend/setting.html')
+
+@app.route('/tentang')
+def tentang():
+    return render_template('/settings/tentang.html')
 
 @app.route('/scan')
 def scan():
@@ -230,24 +234,24 @@ def deleteProduk(id):
     return admin_controller.deleteProduk(id)
 
 # superadmin
-@app.route('/listakun')
-def listakun():
-    return render_template('superadmin/content/listakun.html')
-
-# @app.route('/superadmin/listakun', methods=['GET'])
-# @role_required('super_admin')
+# @app.route('/listakun')
 # def listakun():
-#     return superadmin_controller.listakun()
+#     return render_template('superadmin/content/listakun.html')
 
-# @app.route('/superadmin/editakun/<int:id>', methods=['GET', 'POST'])
-# @role_required('super_admin')
-# def editakun(id):
-#     return superadmin_controller.editakun(id)
+@app.route('/superadmin/listakun', methods=['GET'])
+@role_required('super_admin')
+def listakun():
+    return superadmin_controller.listakun()
 
-# @app.route('/superadmin/deleteakun/<int:id>', methods=['POST'])
-# @role_required('super_admin')
-# def deleteakun(id):
-#     return superadmin_controller.deleteakun(id)
+@app.route('/superadmin/editakun/<int:id>', methods=['GET', 'POST'])
+@role_required('super_admin')
+def editakun(id):
+    return superadmin_controller.editakun(id)
+
+@app.route('/superadmin/deleteakun/<int:id>', methods=['POST'])
+@role_required('super_admin')
+def deleteakun(id):
+    return superadmin_controller.deleteakun(id)
 
 
 
