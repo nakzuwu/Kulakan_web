@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from controllers import user_controller
 from controllers import auth_controller
 from controllers import admin_controller
-# from controllers import superadmin_controller
+from controllers import superadmin_controller
 from controllers import checkout_controller
 import os
 import jwt
@@ -32,7 +32,7 @@ ALLOWED_EXTENSIONS = set(os.getenv('ALLOWED_EXTENSIONS', 'png,jpg,jpeg,gif').spl
 # Other configurations
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/db_kulakan?ssl_disabled=false'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS') == 'True'
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
@@ -230,24 +230,24 @@ def deleteProduk(id):
     return admin_controller.deleteProduk(id)
 
 # superadmin
-@app.route('/listakun')
-def listakun():
-    return render_template('superadmin/content/listakun.html')
-
-# @app.route('/superadmin/listakun', methods=['GET'])
-# @role_required('super_admin')
+# @app.route('/listakun')
 # def listakun():
-#     return superadmin_controller.listakun()
+#     return render_template('superadmin/content/listakun.html')
 
-# @app.route('/superadmin/editakun/<int:id>', methods=['GET', 'POST'])
-# @role_required('super_admin')
-# def editakun(id):
-#     return superadmin_controller.editakun(id)
+@app.route('/superadmin/listakun', methods=['GET'])
+#@role_required('super_admin')
+def listakun():
+    return superadmin_controller.listakun()
 
-# @app.route('/superadmin/deleteakun/<int:id>', methods=['POST'])
-# @role_required('super_admin')
-# def deleteakun(id):
-#     return superadmin_controller.deleteakun(id)
+@app.route('/superadmin/editakun/<int:id>', methods=['GET', 'POST'])
+#@role_required('super_admin')
+def editakun(id):
+    return superadmin_controller.editakun(id)
+
+@app.route('/superadmin/deleteakun/<int:id>', methods=['POST'])
+#@role_required('super_admin')
+def deleteakun(id):
+    return superadmin_controller.deleteakun(id)
 
 
 
