@@ -6,6 +6,11 @@ from models.product import Product
 from dotenv import load_dotenv
 import uuid
 import os
+from flask import session
+from indobert import SentimentAnalyzer
+
+model_indobert = 'model'
+analyzer_indobert = SentimentAnalyzer(model_indobert)
 
 ALLOWED_EXTENSIONS = set(os.getenv('ALLOWED_EXTENSIONS', 'png,jpg,jpeg,gif').split(','))
 
@@ -87,3 +92,21 @@ def deleteakun(id):
     flash('Akun berhasil dihapus!', 'success')
 
     return redirect(url_for('listakun'))
+
+
+def sentimen():
+    reviews = session.get('reviews', [])
+    
+    sentiment_results = []
+    for review in reviews:
+        try:
+            predicted_class, probabilities = analyzer_indobert.predict_sentiment(review['text'])
+            sentiment = "Positif" if predicted_class == 1 else "Negatif"
+            sentiment_results.append({
+                "text": review['text'],
+                "sentiment": sentiment
+            })
+        except Exception as e:
+            print(f"Error processing review: {e}")
+    
+    return render_template('superadmin/content/sentimen.html', sentiment_results=sentiment_results)

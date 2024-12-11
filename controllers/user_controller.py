@@ -24,55 +24,19 @@ def home():
         return render_template('index.html', user=user)
     return redirect(url_for('login'))
 
+def profile_settings():
+    if 'user_id' not in session:
+        flash('You need to log in first.', 'danger')
+        return redirect(url_for('login'))
 
-# Route untuk forgot password
-def forgot_password():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        user = User.query.filter_by(email=email).first()
+    user = User.query.get(session['user_id'])
+    form = ProfileForm()
 
-        if user:
-            try:
-                token = jwt.encode(
-                    {
-                        "user_id": user.id,
-                        "exp": datetime.utcnow() + timedelta(hours=1)
-                    },
-                    app.config['SECRET_KEY'], algorithm='HS256'
-                )
-
-                # Generate the password reset link
-                reset_url = url_for('reset_password', token=token, _external=True)
-
-                # Send reset password email
-                msg = Message('Reset Password', recipients=[email])
-                msg.body = f'Klik tautan berikut untuk mereset password Anda: {reset_url}'
-                mail.send(msg)
-
-                flash('Instruksi reset password telah dikirim ke email Anda.', 'info')
-            except Exception as e:
-                flash(f'Gagal mengirim email: {str(e)}', 'danger')
-        else:
-            flash('Email tidak ditemukan.', 'danger')
-        return redirect(url_for('forgot_password'))
-    
-    return render_template('auth/forgot_password.html')
-
-
-# Route untuk reset password
-def reset_password(token):
-    try:
-        # Decode JWT token to extract user ID
-        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-        user = User.query.get(data['user_id'])
-
-        if not user:
-            flash('Token tidak valid atau telah kadaluarsa.', 'danger')
-            return redirect(url_for('forgot_password'))
-
-        if request.method == 'POST':
-            new_password = request.form.get('password')
-            confirm_password = request.form.get('confirm_password')
+    if form.validate_on_submit():
+        # Update user details
+        user.name = form.name.data
+        user.email = form.email.data
+        user.address = form.address.data
 
         # Handle profile photo upload
         if 'profile_photo' in request.files:
@@ -83,18 +47,20 @@ def reset_password(token):
                 filename = f"{uuid.uuid4().hex}.{ext}"  # Create unique filename
                 file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
 
-            if len(new_password) < 6:
-                flash('Password harus minimal 6 karakter.', 'danger')
-                return redirect(url_for('reset_password', token=token))
+                # Update user's profile_photo in the database
+                user.profile_photo = filename
 
-            # Hash and update the user's password
-            user.password = generate_password_hash(new_password)
-            db.session.commit()
+        # Save other updates to the database
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('profile_settings'))
 
-            flash('Password berhasil diubah. Silakan login.', 'success')
-            return redirect(url_for('login'))
+    # Prepopulate the form with current data
+    form.name.data = user.name
+    form.email.data = user.email
+    form.address.data = user.address
 
-        return render_template('auth/reset_password.html', token=token)
+    return render_template('profile_settings.html', form=form, user=user)
 
 def profile_settings_api():
     # Ensure user is logged in (check if user_id is in session)

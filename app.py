@@ -92,9 +92,9 @@ def home():
 def profile_settings():
     return user_controller.profile_settings()
 
-@app.route('/api/profile', methods=['GET', 'POST'])
-def profile_settings_api():
-    return user_controller.profile_settings_api()
+# @app.route('/api/profile', methods=['GET', 'POST'])
+# def profile_settings_api():
+#     return user_controller.profile_settings_api()
 
 @app.route('/detailproduk/<int:id>')
 def detailProduk(id):
@@ -245,6 +245,11 @@ def editakun(id):
 @role_required('super_admin')
 def deleteakun(id):
     return superadmin_controller.deleteakun(id)
+
+@app.route('/superadmin/sentimen', methods=['GET', 'POST'])
+@role_required('super_admin')
+def sentimen():
+    return superadmin_controller.sentimen()
 
 if __name__ == '__main__':
     app.run(debug=True)
