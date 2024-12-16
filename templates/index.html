@@ -16,9 +16,16 @@
             <nav>
                 <a href="{{ url_for('home') }}">Home</a>
                 <a href="{{ url_for('menuproduk') }}">Produk</a>
-                <a href="#">Riwayat</a>
+                <div class="dropdown">
+                    <a href="#">Pesanan</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('keranjang') }}">Keranjang</a></li>
+                        <li><a href="{{ url_for('riwayat') }}">Riwayat</a></li>
+                    </ul>
+                </div>
                 <a href="{{ url_for('setting') }}">Setting</a>
             </nav>
+            
             <div class="profile-logo">
                 <div class="profile-logo">
                     <p class="user-name">{{ user.name }}</p>
@@ -150,11 +157,16 @@
                 </ul>
             </div>
             <div class="footer-section contact-form">
-                <h3>Hubungi Kami</h3>
+                <h3>Tanggapan anda</h3>
                 <form action="#" method="post">
-                    <input type="email" name="email" placeholder="Email Anda">
+                    <div class="mb-3">
+                        <label for="reviewText" class="form-label">Write Your Review:</label>
+                        <textarea class="form-control" id="reviewText" rows="4" placeholder="Share your experience..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-submit" id="submitButton">Submit Review</button>
+                    <!-- <input type="email" name="email" placeholder="Email Anda">
                     <textarea name="message" placeholder="Pesan Anda"></textarea>
-                    <button type="submit">Kirim</button>
+                    <button type="submit">Kirim</button> -->
                 </form>
             </div>
         </div>
@@ -192,8 +204,42 @@
         function closeChatbot() {
             document.getElementById("chatbotWindow").style.display = "none";
         }
+
+        document.getElementById('review-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const reviewText = document.getElementById('reviewText');
+            const submitButton = document.getElementById('submitButton');
+            
+            // Disable button to prevent multiple submissions
+            submitButton.disabled = true;
+            submitButton.innerHTML = 'Submitting...';
+
+            fetch('/add_review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: reviewText.value })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const reviewItem = document.createElement('li');
+                reviewItem.classList.add('list-group-item');
+                reviewItem.innerHTML = `<p class="mb-0">${data.text}</p>`;
+                document.getElementById('reviews-list').prepend(reviewItem);
+                
+                // Reset form and button
+                reviewText.value = '';
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Submit Review';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Submit Review';
+            });
+        });
     </script>
-    <!-- chatbot -->
-     
+    
     </body>
     </html>

@@ -13,7 +13,33 @@ body {
     background-color: #f9f9f9;
     color: #004600;
 }
-
+.back-button {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #004600;
+    text-decoration: none;
+    background-color: #fff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .back-button i {
+    font-size: 16px;
+  }
+  
+  .back-button:hover {
+    background-color: #f0f0f0;
+    color: #000;
+  }
+  
 .search-container {
     width: 100%;
     display: flex;
@@ -22,24 +48,6 @@ body {
     gap: 10px; /* Jarak antar ikon dan search bar */
     margin-bottom: 20px;
 }
-
-.back-icon {
-    background-color: #69BF5E;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%; /* Membuat ikon back berbentuk lingkaran */
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-}
-
-.back-icon i {
-    color: #fff;
-    font-size: 18px;
-}
-
 .search-bar {
     width: 50%;
     display: flex;
@@ -75,8 +83,8 @@ body {
 }
 
 .section-title {
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 20px;
+    font-weight: 600;
     color: #004600;
     margin-left:1px
 }
@@ -84,15 +92,16 @@ body {
 
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Ubah menjadi 4 kolom */
+    grid-template-columns: repeat(5, 1fr); /* Ubah menjadi 4 kolom */
     gap: 2px; /* Kurangi jarak antar card */
     width: 80%;
-    margin-top: 70px;
+    margin-top: 20px;
 }
 
 .product-card {
     width: 250px; /* Tentukan lebar tetap */
     height: 350px; /* Tentukan tinggi tetap */
+    margin-bottom: 20px;
     border: 1px solid #ddd;
     padding: 15px;
     text-align: center;
@@ -145,13 +154,17 @@ body {
 .product-name {
     font-size: 18px;
     font-weight: bold;
-    margin-top: 10px;
     color: #333;
+    margin-top: 10px;
+    white-space: nowrap; /* Batasi hanya satu baris */
+    overflow: hidden; /* Sembunyikan teks yang melebihi batas */
+    text-overflow: ellipsis; /* Tambahkan tanda "..." di akhir teks */
 }
+
 
 .product-price {
     font-size: 16px;
-    color: #333;
+    color: #004600;
     margin-top: 5px;
 }
 

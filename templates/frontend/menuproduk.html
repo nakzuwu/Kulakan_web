@@ -10,13 +10,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/menuproduk.css') }}">
 </head>
 <body>
+    <a href="{{ url_for('home') }}" class="back-button">
+        <i class=""></i> Kembali
+    </a>
     <!-- Search Section -->
-        <div class="search-container">
-            <a href="{{ url_for('home') }}" class="back-icon" aria-label="Go back to Home">
-                <i class="fas fa-arrow-left" aria-hidden="true"></i>
-            </a>                   
+        <div class="search-container">                 
         <div class="search-bar">
-            <input type="text" placeholder="Search for products...">
+            <input type="text" placeholder="Cari produk atau toko...">
         </div>
         <div class="camera-icon">
             <a href="{{ url_for('scan') }}" class="back-icon">
@@ -50,7 +50,9 @@
                             <span class="original-price">Rp {{ "{:,}".format(ds.original_price) }}</span>
                         {% endif %}
                     </p>
-                    <button class="add-to-cart">Keranjang</button>
+                    <div>
+                   <button class="add-to-cart">Lihat Produk</button>
+                </div>
                 </div>
             </a>
         {% endfor %}
