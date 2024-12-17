@@ -18,26 +18,28 @@
             <tbody>
                 {% for user in dataAkun %}
                 <tr>
-                    <td>
-                        {% if user.profile_photo %}
-                            <img src="{{ url_for('static', filename='profile_photos/' + user.profile_photo) }}" alt="Profile Logo" class="product-image">
-                        {% else %}
-                            <img src="{{ url_for('static', filename='asset/image/download.jpg') }}" alt="Default Image" class="product-image">
-                        {% endif %}
-                    </td>
-                    <td>{{ user.name }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.address }}</td>
-                    <td>{{ user.role }}</td>
-                    <td class="actions">
-                        <a href="{{ url_for('editakun', id=user.id) }}" class="btn-edit">Edit</a>
-                        <form method="POST" action="{{ url_for('deleteakun', id=user.id) }}" style="display:inline-block;">
-                            <button type="submit" class="btn-delete" onclick="return confirm('Yakin ingin menghapus akun ini?')">Hapus</button>
-                        </form>
-                    </td>
+                  <td>
+                    {% if user.profile_photo %}
+                    <img src="{{ url_for('static', filename='profile_photos/' + user.profile_photo) }}" alt="Profile Logo" class="product-image">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='asset/image/download.jpg') }}" alt="Default Image" class="product-image">
+                    {% endif %}
+                  </td>
+                  <td>{{ user.name }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.address }}</td>
+                  <td>{{ user.role }}</td>
+                  <td class="actions">
+                    {% if session['user_id'] != user.id %}
+                    <a href="{{ url_for('editakun', id=user.id) }}" class="btn-edit">Edit</a>
+                    <form method="POST" action="{{ url_for('deleteakun', id=user.id) }}" style="display:inline-block;">
+                      <button type="submit" class="btn-delete" onclick="return confirm('Yakin ingin menghapus akun ini?')">Hapus</button>
+                    </form>
+                    {% endif %}
+                  </td>
                 </tr>
                 {% endfor %}
-            </tbody>
+              </tbody>
         </table>
     </div>
 </div>

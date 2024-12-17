@@ -250,6 +250,11 @@ def editakun(id):
 def deleteakun(id):
     return superadmin_controller.deleteakun(id)
 
+@app.route('/superadmin/produk', methods=['GET'])
+@role_required('super_admin') 
+def listallProduk():
+    return superadmin_controller.listProduk()
+
 @app.route('/superadmin/sentimen', methods=['GET', 'POST'])
 @role_required('super_admin')
 def sentimen():

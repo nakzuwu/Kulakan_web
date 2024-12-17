@@ -27,7 +27,6 @@
                 <select id="role" name="role" required>
                     <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
                     <option value="store_admin" {% if user.role == 'store_admin' %}selected{% endif %}>store_admin</option>
-                    <option value="superadmin" {% if user.role == 'superadmin' %}selected{% endif %}>super_admin</option>
                 </select>
             </div>
             <div class="form-group">
