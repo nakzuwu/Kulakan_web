@@ -26,16 +26,16 @@ def home():
     return redirect(url_for('login'))
 
 def add_review():
-    data = request.get_json() 
-    review_text = data.get('text') 
-
+    review_text = request.form.get('reviewText')
     if not review_text:
         return jsonify({'error': 'Review text is required'}), 400
+    
     reviews = session.get('reviews', [])
     reviews.append({"text": review_text})
     session['reviews'] = reviews
     
-    return jsonify({"text": review_text})  
+    return jsonify({"text": review_text})
+
 
 def profile_settings():
     if 'user_id' not in session:

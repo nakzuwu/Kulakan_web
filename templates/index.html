@@ -158,16 +158,24 @@
             </div>
             <div class="footer-section contact-form">
                 <h3>Tanggapan anda</h3>
-                <form action="#" method="post">
+                <form id="review-form" action="#" method="post">
+                    <!-- Your form fields here -->
+                    <textarea id="reviewText" name="reviewText"></textarea>
+                    <button type="submit" id="submitButton">Submit Review</button>
+                </form>
+                
+                <!-- <ul id="reviews-list"></ul> -->
+                
+                <!-- <form action="#" method="post">
                     <div class="mb-3">
                         <label for="reviewText" class="form-label">Write Your Review:</label>
                         <textarea class="form-control" id="reviewText" rows="4" placeholder="Share your experience..." required></textarea>
                     </div>
                     <button type="submit" class="btn btn-submit" id="submitButton">Submit Review</button>
-                    <!-- <input type="email" name="email" placeholder="Email Anda">
+                    <input type="email" name="email" placeholder="Email Anda">
                     <textarea name="message" placeholder="Pesan Anda"></textarea>
-                    <button type="submit">Kirim</button> -->
-                </form>
+                    <button type="submit">Kirim</button>
+                </form>  -->
             </div>
         </div>
         <div class="footer-bottom">
@@ -209,17 +217,14 @@
             e.preventDefault();
             const reviewText = document.getElementById('reviewText');
             const submitButton = document.getElementById('submitButton');
-            
+
             // Disable button to prevent multiple submissions
             submitButton.disabled = true;
             submitButton.innerHTML = 'Submitting...';
 
             fetch('/add_review', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ text: reviewText.value })
+                body: new FormData(this)
             })
             .then(response => response.json())
             .then(data => {
@@ -227,7 +232,7 @@
                 reviewItem.classList.add('list-group-item');
                 reviewItem.innerHTML = `<p class="mb-0">${data.text}</p>`;
                 document.getElementById('reviews-list').prepend(reviewItem);
-                
+
                 // Reset form and button
                 reviewText.value = '';
                 submitButton.disabled = false;
@@ -237,8 +242,9 @@
                 console.error('Error:', error);
                 submitButton.disabled = false;
                 submitButton.innerHTML = 'Submit Review';
+                reviewText.value = '';
             });
-        });
+            });
     </script>
     
     </body>
