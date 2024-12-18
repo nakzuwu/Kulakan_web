@@ -116,4 +116,4 @@ def listProduk():
         return redirect(url_for('login'))
     dataProduk = Product.query.all()
 
-    return render_template('admin/content/listproduk.html', dataProduk=dataProduk)
+    return render_template('superadmin/content/listproduk.html', dataProduk=dataProduk)
