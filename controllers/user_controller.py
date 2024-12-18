@@ -21,8 +21,21 @@ def get_user_from_session():
 def home():
     user = get_user_from_session()
     if user:
-        return render_template('index.html', user=user)
+        reviews = session.get('reviews', []) 
+        return render_template('index.html', user=user, reviews=reviews)
     return redirect(url_for('login'))
+
+def add_review():
+    review_text = request.form.get('reviewText')
+    if not review_text:
+        return jsonify({'error': 'Review text is required'}), 400
+    
+    reviews = session.get('reviews', [])
+    reviews.append({"text": review_text})
+    session['reviews'] = reviews
+    
+    return jsonify({"text": review_text})
+
 
 def profile_settings():
     if 'user_id' not in session:

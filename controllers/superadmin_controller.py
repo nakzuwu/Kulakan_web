@@ -110,3 +110,10 @@ def sentimen():
             print(f"Error processing review: {e}")
     
     return render_template('superadmin/content/sentimen.html', sentiment_results=sentiment_results)
+
+def listProduk():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    dataProduk = Product.query.all()
+
+    return render_template('superadmin/content/listproduk.html', dataProduk=dataProduk)

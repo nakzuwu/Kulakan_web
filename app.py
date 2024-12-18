@@ -88,7 +88,11 @@ def page_not_found(e):
 def home():
     return user_controller.home()
 
-@app.route('/profile_settings')
+@app.route('/add_review', methods=['POST'])
+def add_review():
+    return user_controller.add_review()
+
+@app.route('/profile_settings', methods=['GET', 'POST'])
 def profile_settings():
     return user_controller.profile_settings()
 
@@ -245,6 +249,11 @@ def editakun(id):
 @role_required('super_admin')
 def deleteakun(id):
     return superadmin_controller.deleteakun(id)
+
+@app.route('/superadmin/produk', methods=['GET'])
+@role_required('super_admin') 
+def listallProduk():
+    return superadmin_controller.listProduk()
 
 @app.route('/superadmin/sentimen', methods=['GET', 'POST'])
 @role_required('super_admin')
