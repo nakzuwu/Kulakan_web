@@ -2,3 +2,5 @@
 __pychace__
 .vscode
 model
+venv
+.venv

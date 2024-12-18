@@ -769,3 +769,62 @@ color: #333;
   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
+.sentimenHead {
+  font-family: "merriweather", serif;
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.content-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.cardchart,
+.card {
+  flex: 1 1 48%; /* Mengatur agar kedua elemen memiliki lebar 48% */
+  min-width: 300px; /* Lebar minimum untuk responsivitas */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header-chart,
+.card-header {
+  background-color: #f5f5f5;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+}
+
+.card-body {
+  padding: 15px;
+}
+
+.chart-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.list-group-item {
+  border: none;
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.review-text {
+  margin-bottom: 5px;
+}
+
+.sentiment-text {
+  margin: 0;
+}

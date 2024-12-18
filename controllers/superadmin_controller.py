@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models.user import User
 from models import db
 from models.product import Product
+from models.sentimen import SentimentResult
 from dotenv import load_dotenv
 import uuid
 import os
@@ -100,16 +101,40 @@ def sentimen():
     sentiment_results = []
     for review in reviews:
         try:
-            predicted_class, probabilities = analyzer_indobert.predict_sentiment(review['text'])
-            sentiment = "Positif" if predicted_class == 1 else "Negatif"
-            sentiment_results.append({
-                "text": review['text'],
-                "sentiment": sentiment
-            })
+            # Cek apakah review sudah ada di database
+            existing_review = SentimentResult.query.filter_by(text=review['text']).first()
+            if existing_review:
+                # Jika sudah ada, lanjutkan tanpa menambahkannya lagi
+                sentiment_results.append({
+                    "text": review['text'],
+                    "sentiment": existing_review.sentiment
+                })
+            else:
+                # Jika review belum ada, lakukan analisis sentimen dan simpan ke database
+                predicted_class, probabilities = analyzer_indobert.predict_sentiment(review['text'])
+                sentiment = "Positif" if predicted_class == 1 else "Negatif"
+                
+                # Simpan hasil ke database
+                sentiment_result = SentimentResult(text=review['text'], sentiment=sentiment)
+                db.session.add(sentiment_result)
+                db.session.commit()
+
+                # Tambahkan ke hasil untuk ditampilkan
+                sentiment_results.append({
+                    "text": review['text'],
+                    "sentiment": sentiment
+                })
         except Exception as e:
             print(f"Error processing review: {e}")
-    
-    return render_template('superadmin/content/sentimen.html', sentiment_results=sentiment_results)
+
+    # Ambil semua data sentimen dari database dan konversi menjadi dictionary
+    all_sentiments = [result.to_dict() for result in SentimentResult.query.order_by(SentimentResult.created_at.desc()).all()]
+
+    return render_template(
+        'superadmin/content/sentimen.html',
+        sentiment_results=all_sentiments  # Kirim data yang sudah dikonversi
+    )
+
 
 def listProduk():
     if 'user_id' not in session:
