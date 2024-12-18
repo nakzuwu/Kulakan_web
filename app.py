@@ -88,7 +88,7 @@ def page_not_found(e):
 def home():
     return user_controller.home()
 
-@app.route('/profile_settings', methods=['GET', 'POST'])
+@app.route('/profile_settings')
 def profile_settings():
     return user_controller.profile_settings()
 
