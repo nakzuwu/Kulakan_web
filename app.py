@@ -9,6 +9,7 @@ from form import ProfileForm
 from models import db
 from models.user import User
 from models.product import Product
+from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from controllers import user_controller
 from controllers import auth_controller
@@ -17,6 +18,8 @@ from controllers import superadmin_controller
 from controllers import checkout_controller
 import os
 import jwt
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 app.secret_key = 'capstonekel7'
@@ -48,6 +51,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)  # Session expires
 Session(app)
 
 mail = Mail(app)
+CORS(app)
 
 db.init_app(app)
 with app.app_context():
@@ -58,6 +62,16 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.before_request
+def handle_options_request():
+    if request.method == 'OPTIONS':
+        response = app.response_class()
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        return response, 200
+
 
 def role_required(role):
     def decorator(func):
@@ -197,8 +211,63 @@ def logout():
     return auth_controller.logout()
 
 @app.route('/api/register', methods=['POST'])
-def api_register():
-    return auth_controller.api_register()
+def registerApi():
+    try:
+        data = request.get_json()
+
+        # Validasi input
+        if not data:
+            return jsonify({'message': 'No data provided.', 'status': 'error'}), 400
+
+        name = data.get('name', '').strip()
+        email = data.get('email', '').strip()
+        password = data.get('password', '').strip()
+        address = data.get('address', None)
+        profile_photo = data.get('profile_photo', 'default.jpg')
+        role = data.get('role', 'user')  # Default role adalah 'user'
+
+        # Validasi input yang wajib
+        if not all([name, email, password]):
+            return jsonify({'message': 'Name, Email, and Password are required!', 'status': 'error'}), 400
+
+        # Cek apakah email sudah terdaftar
+        if User.query.filter_by(email=email).first():
+            return jsonify({'message': 'Email already exists!', 'status': 'error'}), 400
+
+        # Hash password
+        hashed_password = generate_password_hash(password)
+
+        # Simpan data user
+        user = User(
+            name=name,
+            email=email,
+            password=hashed_password,
+            address=address,
+            profile_photo=profile_photo,
+            role=role
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+        # Return response sukses
+        return jsonify({
+            'message': 'Account created successfully!',
+            'status': 'success',
+            'user': {
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'address': user.address,
+                'profile_photo': user.profile_photo,
+                'role': user.role,
+            }
+        }), 201
+
+    except Exception as e:
+        app.logger.error(f"Error during registration: {str(e)}")
+        return jsonify({'message': 'An error occurred during registration.', 'status': 'error'}), 500
+
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
