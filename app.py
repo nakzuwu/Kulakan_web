@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify,make_response
 from flask_session import Session
 from functools import wraps
 from flask_mail import Mail, Message
@@ -271,7 +271,34 @@ def registerApi():
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
-    return auth_controller.api_login()
+    try:
+        data = request.json
+        email = data.get('email')
+        password = data.get('password')
+
+        if not email or not password:
+            return jsonify({'error': 'Email and password are required.'}), 400
+
+        user = User.query.filter_by(email=email).first()
+        if not user or not check_password_hash(user.password, password):
+            return jsonify({'error': 'Invalid email or password.'}), 401
+
+        # Set user session
+        session['user_id'] = user.id
+        session['user_name'] = user.name
+        session['user_role'] = user.role
+
+        response = make_response(jsonify({
+            'message': 'Login successful!',
+            'role': user.role
+        }), 200)
+        response.set_cookie('session', session.sid, httponly=True)  # Securely set the session cookie
+        return response
+
+    except Exception as e:
+        app.logger.error(f"Login error: {str(e)}")
+        return jsonify({'error': 'An error occurred during login.'}), 500
+
 
 @app.route('/api/logout', methods=['POST'])
 def api_logout():
