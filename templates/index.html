@@ -171,35 +171,88 @@
     </footer>
     <!-- chatbot -->
     <section class="offers">
-            <div class="chatbot-icon" onclick="openChatbot()">
-                <i class="fas fa-comment"></i>
-            </div>
-            <div class="chatbot-window" id="chatbotWindow">
-                <div class="chatbot-header">
-                    <h3>Botti</h3>
-                    <button onclick="closeChatbot()">✕</button>
-                </div>
-                <div class="chatbot-messages">
-                    <div class="message bot">Halo! Ada yang bisa saya bantu?</div>
-                    <!-- Tambahkan elemen pesan lain sesuai kebutuhan -->
-                </div>
-                <div class="chatbot-input">
-                    <input type="text" placeholder="Tulis pesan Anda...">
-                    <button>Kirim</button>
-                </div>
-            </div>
+    <div class="chatbot-icon" onclick="openChatbot()">
+        <i class="fas fa-comment"></i>
+    </div>
+    <div class="chatbot-window" id="chatbotWindow">
+        <div class="chatbot-header">
+            <h3>Botti</h3>
+            <button onclick="closeChatbot()">✕</button>
         </div>
-    </section>
+        <div class="chatbot-messages" id="messages">
+            <div class="message bot">Halo! Ada yang bisa saya bantu?</div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="userInput" placeholder="Tulis pesan Anda...">
+            <button onclick="sendQuery()">Kirim</button>
+        </div>
+    </div>
+</section>
 
-    <script>
-        function openChatbot() {
-            document.getElementById("chatbotWindow").style.display = "flex";
-        }
+<script>
+    // Buka jendela chatbot
+    function openChatbot() {
+        document.getElementById("chatbotWindow").style.display = "flex";
+    }
 
-        function closeChatbot() {
-            document.getElementById("chatbotWindow").style.display = "none";
-        }
-    </script>
+    // Tutup jendela chatbot
+    function closeChatbot() {
+        document.getElementById("chatbotWindow").style.display = "none";
+    }
+
+    // Kirim permintaan ke server Flask
+    // Kirim permintaan ke server Flask
+async function sendQuery() {
+    const userInput = document.getElementById("userInput").value;
+
+    if (!userInput.trim()) {
+        alert("Silakan masukkan pesan!");
+        return;
+    }
+
+    const responseDiv = document.getElementById("messages");
+
+    // Tambahkan pesan pengguna ke antarmuka
+    const userMessage = document.createElement("div");
+    userMessage.className = "message";
+    userMessage.textContent = userInput;
+    responseDiv.appendChild(userMessage);
+
+    // Kirim data ke server Flask
+    try {
+        const response = await fetch("/chat/query", { // Perbaikan URL endpoint
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userInput }), // Kirim data sebagai JSON
+        });
+
+        const data = await response.json();
+
+        // Tambahkan respons bot ke antarmuka
+        const botMessage = document.createElement("div");
+        botMessage.className = "message bot";
+        botMessage.textContent = data.response || "Maaf, ada kesalahan!";
+        responseDiv.appendChild(botMessage);
+
+        // Bersihkan input
+        document.getElementById("userInput").value = "";
+    } catch (error) {
+        console.error("Error:", error);
+        const errorMessage = document.createElement("div");
+        errorMessage.className = "message bot";
+        errorMessage.textContent = "Maaf, saya tidak bisa merespons saat ini.";
+        responseDiv.appendChild(errorMessage);
+    }
+
+    // Scroll ke bawah otomatis
+    responseDiv.scrollTop = responseDiv.scrollHeight;
+}
+
+
+
+</script>
     <!-- chatbot -->
      
     </body>
