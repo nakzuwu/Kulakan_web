@@ -1,5 +1,5 @@
-from flask import Flask, request, jsonify
-
+from flask import Flask
+from controllers.chatbot_controller import chatbot_bp
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -7,17 +7,6 @@ from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
-from flask_cors import CORS  # Untuk mengatasi masalah CORS jika perlu
-
-from llama_index.core import (
-    VectorStoreIndex,
-    StorageContext,
-    ServiceContext,
-    load_index_from_storage
-)
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.llms.groq import Groq
-import os
 from form import ProfileForm
 from models import db
 from models.user import User
@@ -26,15 +15,13 @@ from dotenv import load_dotenv
 from controllers import user_controller
 from controllers import auth_controller
 from controllers import admin_controller
-from controllers.chatbot_controller import inputChat
+from controllers import chatbot_controller
 import os
 import uuid
 import jwt 
 
-
 app = Flask(__name__)
 app.secret_key = 'capstonekel7'
-CORS(app)
 
 mail = Mail(app)
 
@@ -52,12 +39,13 @@ ALLOWED_EXTENSIONS = set(os.getenv('ALLOWED_EXTENSIONS', 'png,jpg,jpeg,gif').spl
 # Other configurations
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/db_kulakan?ssl_disabled=false'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS') == 'True'
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
-app.config['MAinaIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
@@ -66,7 +54,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-
+app.register_blueprint(chatbot_bp, url_prefix="/api")
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -249,60 +237,10 @@ def keranjang():
 @app.route('/payment')
 def payment():
     return render_template('frontend/payment.html')
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-# Define the embedding and LLM models
-embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L12-v2")
-llm = Groq(model="llama-3.2-90b-vision-preview", api_key=GROQ_API_KEY)
-
-# Configure Service Context
-service_context = ServiceContext.from_defaults(embed_model=embed_model, llm=llm)
-
-# Define Storage Context
-storage_context = StorageContext.from_defaults(persist_dir="D:\\storage_mini")
-
-# Load Index
-index = load_index_from_storage(storage_context, service_context=service_context)
-
-# Query Engine
-query_engine = index.as_query_engine(service_context=service_context)
-@app.route('/chat/query', methods=['POST'])
+@app.route('/query', methods=['POST'])
 def query():
-    try:
-        # Pastikan request memiliki JSON dan ambil input pengguna
-        if not request.is_json:
-            return jsonify({'response': 'Permintaan harus berupa JSON.'}), 400
-        
-        user_input = request.json.get('userInput', '').strip()
-        if not user_input:
-            return jsonify({'response': 'Pesan kosong, silakan masukkan pesan valid.'}), 400
-        
-        # Query ke LLM
-        response = query_engine.query(user_input)
-        
-        # Kembalikan respons ke frontend
-        return jsonify({'response': response.response})
-    except Exception as e:
-        # Tangani error secara elegan
-        return jsonify({'error': str(e), 'response': 'Terjadi kesalahan. Silakan coba lagi nanti.'}), 500
-
-
-@app.route('/input-chat', methods=['POST'])
-def inputChat():
-    try:
-        # Dapatkan input user dari request
-        user_input = request.json.get('message', '').strip()
-        if not user_input:
-            return jsonify({'response': 'Pesan kosong, silakan masukkan pesan valid.'}), 400
-
-        # Query ke LLM
-        response = query_engine.query(user_input)   
-
-        # Kembalikan hasil respons
-        return jsonify({'response': response.response})
-    except Exception as e:
-        # Tangani error dengan aman
-        return jsonify({'error': str(e), 'response': 'Terjadi kesalahan. Silakan coba lagi nanti.'}), 500
+    return chatbot_controller.chat()
   
 if __name__ == '__main__':
     app.run(debug=True)

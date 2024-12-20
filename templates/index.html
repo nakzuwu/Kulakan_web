@@ -20,7 +20,7 @@
                     <a href="#">Pesanan</a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('keranjang') }}">Keranjang</a></li>
-                        <li><a href="#">Riwayat</a></li>
+                        <li><a href="{{ url_for('riwayat') }}">Riwayat</a></li>
                     </ul>
                 </div>
                 <a href="{{ url_for('setting') }}">Setting</a>
@@ -157,12 +157,25 @@
                 </ul>
             </div>
             <div class="footer-section contact-form">
-                <h3>Hubungi Kami</h3>
-                <form action="#" method="post">
+                <h3>Tanggapan anda</h3>
+                <form id="review-form" action="#" method="post">
+                    <!-- Your form fields here -->
+                    <textarea id="reviewText" name="reviewText"></textarea>
+                    <button type="submit" id="submitButton">Submit Review</button>
+                </form>
+                
+                <!-- <ul id="reviews-list"></ul> -->
+                
+                <!-- <form action="#" method="post">
+                    <div class="mb-3">
+                        <label for="reviewText" class="form-label">Write Your Review:</label>
+                        <textarea class="form-control" id="reviewText" rows="4" placeholder="Share your experience..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-submit" id="submitButton">Submit Review</button>
                     <input type="email" name="email" placeholder="Email Anda">
                     <textarea name="message" placeholder="Pesan Anda"></textarea>
                     <button type="submit">Kirim</button>
-                </form>
+                </form>  -->
             </div>
         </div>
         <div class="footer-bottom">
@@ -170,88 +183,133 @@
         </div>
     </footer>
     <!-- chatbot -->
-    <section class="offers">
-    <div class="chatbot-icon" onclick="openChatbot()">
-        <i class="fas fa-comment"></i>
-    </div>
-    <div class="chatbot-window" id="chatbotWindow">
-        <div class="chatbot-header">
-            <h3>Botti</h3>
-            <button onclick="closeChatbot()">✕</button>
+    <div class="chatbox">
+            <div class="chatbox__support">
+                <div class="chatbox__header">
+                    <div class="chatbox__image--header">
+                        <img src="{{ url_for('static', filename='image/pandas.png') }}" alt="Panda">
+                    </div>
+                    <div class="chatbox__content--header">
+                        <h4 class="chatbox__heading--header">Si Panda</h4>
+                        <p class="chatbox__description--header">Hi. Ada yang bisa saya bantu?</p>
+                    </div>
+                </div>
+                <div class="chatbox__messages chat-messages">
+                    <!-- Pesan akan ditambahkan di sini -->
+                </div>
+                <div class="chatbox__footer">
+                    <input id="user-input" type="text" placeholder="Tulis pesan...">
+                    <button id="send-btn" class="chatbox__send--footer">Kirim</button>
+                </div>
+            </div>
+            <div class="chatbox__button">
+                <button><img src="{{ url_for('static', filename='image/Frame.png') }}" alt="Button"></button>
+            </div>
         </div>
-        <div class="chatbot-messages" id="messages">
-            <div class="message bot">Halo! Ada yang bisa saya bantu?</div>
-        </div>
-        <div class="chatbot-input">
-            <input type="text" id="userInput" placeholder="Tulis pesan Anda...">
-            <button onclick="sendQuery()">Kirim</button>
-        </div>
-    </div>
-</section>
 
 <script>
-    // Buka jendela chatbot
-    function openChatbot() {
-        document.getElementById("chatbotWindow").style.display = "flex";
+    class Chatbox {
+    constructor() {
+        this.args = {
+            openButton: document.querySelector('.chatbox__button'),
+            chatBox: document.querySelector('.chatbox__support'),
+            sendButton: document.querySelector('#send-btn'), // Ganti dengan ID baru
+            inputField: document.querySelector('#user-input'), // Ganti dengan ID baru
+            chatMessages: document.querySelector('.chat-messages'), // Tambahkan elemen baru
+        };
+
+        this.state = false;
+        this.messages = []; // Menyimpan pesan
     }
 
-    // Tutup jendela chatbot
-    function closeChatbot() {
-        document.getElementById("chatbotWindow").style.display = "none";
-    }
+    display() {
+        const { openButton, chatBox, sendButton, inputField } = this.args;
 
-    // Kirim permintaan ke server Flask
-    // Kirim permintaan ke server Flask
-async function sendQuery() {
-    const userInput = document.getElementById("userInput").value;
+        // Event untuk membuka dan menutup chatbox
+        openButton.addEventListener('click', () => this.toggleState(chatBox));
 
-    if (!userInput.trim()) {
-        alert("Silakan masukkan pesan!");
-        return;
-    }
+        // Event untuk tombol kirim
+        sendButton.addEventListener('click', () => this.onSendButton());
 
-    const responseDiv = document.getElementById("messages");
-
-    // Tambahkan pesan pengguna ke antarmuka
-    const userMessage = document.createElement("div");
-    userMessage.className = "message";
-    userMessage.textContent = userInput;
-    responseDiv.appendChild(userMessage);
-
-    // Kirim data ke server Flask
-    try {
-        const response = await fetch("/chat/query", { // Perbaikan URL endpoint
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ userInput }), // Kirim data sebagai JSON
+        // Event untuk tombol "Enter" pada input field
+        inputField.addEventListener('keyup', ({ key }) => {
+            if (key === 'Enter') {
+                this.onSendButton();
+            }
         });
-
-        const data = await response.json();
-
-        // Tambahkan respons bot ke antarmuka
-        const botMessage = document.createElement("div");
-        botMessage.className = "message bot";
-        botMessage.textContent = data.response || "Maaf, ada kesalahan!";
-        responseDiv.appendChild(botMessage);
-
-        // Bersihkan input
-        document.getElementById("userInput").value = "";
-    } catch (error) {
-        console.error("Error:", error);
-        const errorMessage = document.createElement("div");
-        errorMessage.className = "message bot";
-        errorMessage.textContent = "Maaf, saya tidak bisa merespons saat ini.";
-        responseDiv.appendChild(errorMessage);
     }
 
-    // Scroll ke bawah otomatis
-    responseDiv.scrollTop = responseDiv.scrollHeight;
+    toggleState(chatbox) {
+        this.state = !this.state;
+
+        // Tampilkan atau sembunyikan chatbox
+        if (this.state) {
+            chatbox.classList.add('chatbox--active');
+        } else {
+            chatbox.classList.remove('chatbox--active');
+        }
+    }
+
+    onSendButton() {
+        const { inputField, chatMessages } = this.args;
+        const userMessage = inputField.value.trim();
+
+        if (!userMessage) return; // Jangan kirim pesan kosong
+
+        // Tambahkan pesan pengguna ke UI
+        this.addMessageToChatbox(chatMessages, 'User', userMessage);
+
+        // Kirim pesan ke API chatbot
+        fetch('/api/chatbot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userMessage }),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(HTTP error! status: ${response.status});
+                }
+                return response.json();
+            })
+            .then((data) => {
+                const botResponse = data.response || 'Maaf, terjadi kesalahan pada server.';
+                this.addMessageToChatbox(chatMessages, 'Si Panda', botResponse, true);
+                inputField.value = ''; // Kosongkan input pengguna
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                this.addMessageToChatbox(chatMessages, 'Si Panda', 'Maaf, tidak dapat terhubung ke server.', true);
+                inputField.value = ''; // Kosongkan input pengguna
+            });
+    }
+
+    addMessageToChatbox(chatMessages, sender, message, isBot = false) {
+        if (isBot) {
+            // Tambahkan pesan bot dengan avatar
+            const botMessageElement = document.createElement('div');
+            botMessageElement.classList.add('message');
+            botMessageElement.innerHTML = `  
+                <div class="message received">
+                    <p>${message}</p>
+                </div>`;
+            chatMessages.appendChild(botMessageElement);
+        } else {
+            // Tambahkan pesan pengguna
+            const userMessageElement = document.createElement('div');
+            userMessageElement.classList.add('message', 'sent');
+            userMessageElement.innerHTML = <p>${message}</p>;
+            chatMessages.appendChild(userMessageElement);
+        }
+
+        // Scroll otomatis ke bagian bawah
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
 }
 
-
-
+// Inisialisasi class Chatbox
+const chatbox = new Chatbox();
+chatbox.display();
 </script>
     <!-- chatbot -->
      

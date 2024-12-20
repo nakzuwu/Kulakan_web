@@ -1,17 +1,26 @@
 from flask import Blueprint, request, jsonify
-from llama_index.core import (
-    VectorStoreIndex,
-    StorageContext,
-    ServiceContext,
-    load_index_from_storage
-)
+try:
+    # Untuk versi terbaru
+    from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+except ImportError:
+    # Untuk versi lama
+    from llama_index.legacy import VectorStoreIndex
+
+# from gpt_index import SimpleDirectoryReader, GPTListIndex,readers, GPTSimpleVectorIndex, LLMPredictor, PromptHelper
+from langchain import OpenAI
+from types import FunctionType
+from llama_index import SimpleDirectoryReader, load_index_from_storage
+import sys
+import time 
+
+from llama_index.storage.storage_context import StorageContext
+from llama_index.service_context import ServiceContext
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.groq import Groq
+from llama_index.indices.base import load_index_from_storage
 import os
 
-
-
-# Ambil variabel dari .env
+# Setup Blueprint
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # Define the embedding and LLM models
@@ -29,24 +38,3 @@ index = load_index_from_storage(storage_context, service_context=service_context
 
 # Query Engine
 query_engine = index.as_query_engine(service_context=service_context)
-
-# Chat route
-
-def inputChat():
-    try:
-        # Pastikan request memiliki JSON dan ambil input pengguna
-        if not request.is_json:
-            return jsonify({'response': 'Permintaan harus berupa JSON.'}), 400
-        
-        user_input = request.json.get('userInput', '').strip()
-        if not user_input:
-            return jsonify({'response': 'Pesan kosong, silakan masukkan pesan valid.'}), 400
-        
-        # Query ke LLM
-        response = query_engine.query(user_input)
-        
-        # Kembalikan respons ke frontend
-        return jsonify({'response': response.response})
-    except Exception as e:
-        # Tangani error secara elegan
-        return jsonify({'error': str(e), 'response': 'Terjadi kesalahan. Silakan coba lagi nanti.'}), 500

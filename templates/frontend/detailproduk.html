@@ -12,7 +12,7 @@
     <!-- Header -->
     <header class="header">
         <div class="logo">
-            <a href="{{ url_for('home') }}">Kulakan</a>
+            <a href="{{ url_for('home') }}">Kulakan.</a>
         </div>
         <div class="search-container">
             <input type="text" placeholder="Cari produk..." class="search-bar">
@@ -52,7 +52,9 @@
                 </div>
                  <!-- Tombol Cart dan Payment -->
                  <div class="action-buttons">
-                    <a href="{{ url_for('keranjang') }}" class="btn-cart">Keranjang</a>
+                    <form action="{{ url_for('add_to_cart', product_id=dataBs.id) }}" method="POST">
+                        <button type="submit" class="btn-cart">Add to Cart</button>
+                    </form>
                     <a href="{{ url_for('payment') }}" class="btn-payment">Beli Sekarang</a>
                 </div>
             </div>

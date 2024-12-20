@@ -4,7 +4,7 @@ body {
     margin: 0;
     font-family: 'Poppins', sans-serif;
     background-color: #f9f9f9;
-    color: #333;
+    color: #004600;
 }
 
 .header {
@@ -12,7 +12,7 @@ body {
     justify-content: space-between;
     align-items: center;
     background-color: #69BF5E;
-    padding: 10px 20px;
+    padding: 20px 20px;
 }
 
 .header .logo a {
@@ -21,15 +21,17 @@ body {
     font-weight: bold;
     color: #fff;
     text-decoration: none;
+    margin-left: 55px;
 }
 
 .search-container {
     display: flex;
     align-items: center;
+    margin-right: 55px;
 }
 
 .search-container .search-bar {
-    padding: 8px 12px;
+    padding: 10px 25px;
     border-radius: 20px;
     border: none;
     outline: none;
@@ -38,7 +40,7 @@ body {
 .search-container .camera-icon {
     margin-left: 10px;
     color: #fff;
-    font-size: 20px;
+    font-size: 26px;
 }
 
 .section-title {
@@ -97,7 +99,7 @@ body {
 }
 
 .product-price {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: bold;
     color: #69BF5E;
     margin-bottom: 15px;
@@ -149,8 +151,14 @@ body {
     gap: 10px;
 }
 
+.cart-summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; /* Mengatur jarak antar tombol */
+}
+
 .btn-cart, .btn-payment {
-    width: 48%;
+    flex: 1; /* Membuat kedua tombol mengisi ruang yang sama */
     padding: 10px;
     font-size: 14px;
     font-weight: 600;

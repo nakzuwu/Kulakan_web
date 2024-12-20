@@ -25,8 +25,10 @@
                     <p><strong>Nama:</strong> {{ user.name }}</p>
                     <p><strong>Email:</strong> {{ user.email }}</p>
                     <p><strong>Alamat:</strong> {{ user.address if user.address else 'Not provided' }}</p>
-                    {% if user.role != 'user' %}
-                        <a href="{{ url_for('dashboard') }}" class="btn">Admin Kulakan</a>
+                    {% if user.role == 'super_admin' %}
+                        <a href="{{ url_for('listakun') }}" class="btn">Super Admin Panel</a>
+                    {% elif user.role == 'store_admin' %}
+                        <a href="{{ url_for('dashboard') }}" class="btn">Admin Panel</a>
                     {% endif %}
                 </div>
                 <!-- Logout button -->

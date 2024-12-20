@@ -22,7 +22,7 @@ body {
     gap: 8px;
     font-size: 14px;
     font-weight: 600;
-    color: #333;
+    color: #004600;
     text-decoration: none;
     background-color: #fff;
     padding: 8px 12px;
@@ -92,7 +92,7 @@ body {
 
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Ubah menjadi 4 kolom */
+    grid-template-columns: repeat(5, 1fr); /* Ubah menjadi 4 kolom */
     gap: 2px; /* Kurangi jarak antar card */
     width: 80%;
     margin-top: 20px;
@@ -101,6 +101,7 @@ body {
 .product-card {
     width: 250px; /* Tentukan lebar tetap */
     height: 350px; /* Tentukan tinggi tetap */
+    margin-bottom: 20px;
     border: 1px solid #ddd;
     padding: 15px;
     text-align: center;
@@ -153,13 +154,17 @@ body {
 .product-name {
     font-size: 18px;
     font-weight: bold;
-    margin-top: 10px;
     color: #333;
+    margin-top: 10px;
+    white-space: nowrap; /* Batasi hanya satu baris */
+    overflow: hidden; /* Sembunyikan teks yang melebihi batas */
+    text-overflow: ellipsis; /* Tambahkan tanda "..." di akhir teks */
 }
+
 
 .product-price {
     font-size: 16px;
-    color: #333;
+    color: #004600;
     margin-top: 5px;
 }
 
