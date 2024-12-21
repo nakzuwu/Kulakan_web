@@ -1,5 +1,4 @@
 from flask import Flask
-from controllers.chatbot_controller import chatbot_bp
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -15,7 +14,7 @@ from dotenv import load_dotenv
 from controllers import user_controller
 from controllers import auth_controller
 from controllers import admin_controller
-from controllers import chatbot_controller
+from controllers import chatbotController
 import os
 import uuid
 import jwt 
@@ -39,9 +38,8 @@ ALLOWED_EXTENSIONS = set(os.getenv('ALLOWED_EXTENSIONS', 'png,jpg,jpeg,gif').spl
 # Other configurations
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
-
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS') == 'True'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/db_kulakan?ssl_disabled=false'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] =os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS') == 'True'
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
@@ -54,7 +52,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-app.register_blueprint(chatbot_bp, url_prefix="/api")
+
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -240,7 +238,7 @@ def payment():
 
 @app.route('/query', methods=['POST'])
 def query():
-    return chatbot_controller.chat()
+    return chatbotController.chat()
   
 if __name__ == '__main__':
     app.run(debug=True)
