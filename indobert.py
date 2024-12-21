@@ -5,6 +5,7 @@ from nltk.corpus import stopwords
 import nltk
 nltk.download('stopwords')
 
+
 class SentimentAnalyzer:
     def __init__(self, model_path):
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)

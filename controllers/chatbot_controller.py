@@ -9,6 +9,8 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.groq import Groq
 import os
 
+chatbot_bp = Blueprint('chatbot', __name__)  # Ini mendefinisikan chatbot_bp
+
 # Setup Blueprint
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
@@ -27,6 +29,7 @@ index = load_index_from_storage(storage_context, service_context=service_context
 
 # Query Engine
 query_engine = index.as_query_engine(service_context=service_context)
+@chatbot_bp.route('/chatbot', methods=['POST'])
 def chat():
     try:
         # Get user input from request

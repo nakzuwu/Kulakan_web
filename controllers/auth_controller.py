@@ -189,6 +189,42 @@ def api_login():
     response.set_cookie('session', session.sid, httponly=True)  # Securely set the session cookie
     return response
 
+# def api_login():
+#     try:
+#         data = request.get_json()
+
+#         if not data or 'email' not in data or 'password' not in data:
+#             return jsonify({'message': 'Email and Password are required.', 'status': 'error'}), 400
+
+#         email = data['email']
+#         password = data['password']
+
+#         user = User.query.filter_by(email=email).first()
+#         if not user or not check_password_hash(user.password, password):
+#             return jsonify({'message': 'Invalid email or password.', 'status': 'error'}), 401
+
+#         # Generate token
+#         token = jwt.encode({
+#             'user_id': user.id,
+#             'exp': datetime.utcnow() + timedelta(hours=1)
+#         }, app.secret_key, algorithm="HS256")
+
+#         return jsonify({
+#             'message': 'Login successful.',
+#             'status': 'success',
+#             'token': token,
+#             'user': {
+#                 'id': user.id,
+#                 'name': user.name,
+#                 'email': user.email,
+#                 'role': user.role
+#             }
+#         }), 200
+
+#     except Exception as e:
+#         app.logger.error(f"Login error: {str(e)}")
+#         return jsonify({'message': 'An error occurred during login.', 'status': 'error'}), 500
+
 
 def api_logout():
     session.clear()
