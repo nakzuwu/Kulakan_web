@@ -224,20 +224,16 @@ def registerApi():
         password = data.get('password', '').strip()
         address = data.get('address', None)
         profile_photo = data.get('profile_photo', 'default.jpg')
-        role = data.get('role', 'user')  # Default role adalah 'user'
+        role = data.get('role', 'user') 
 
-        # Validasi input yang wajib
         if not all([name, email, password]):
             return jsonify({'message': 'Name, Email, and Password are required!', 'status': 'error'}), 400
 
-        # Cek apakah email sudah terdaftar
         if User.query.filter_by(email=email).first():
             return jsonify({'message': 'Email already exists!', 'status': 'error'}), 400
 
-        # Hash password
         hashed_password = generate_password_hash(password)
 
-        # Simpan data user
         user = User(
             name=name,
             email=email,
@@ -250,7 +246,6 @@ def registerApi():
         db.session.add(user)
         db.session.commit()
 
-        # Return response sukses
         return jsonify({
             'message': 'Account created successfully!',
             'status': 'success',
@@ -292,7 +287,7 @@ def api_login():
             'message': 'Login successful!',
             'role': user.role
         }), 200)
-        response.set_cookie('session', session.sid, httponly=True)  # Securely set the session cookie
+        response.set_cookie('session', session.sid, httponly=True)  
         return response
 
     except Exception as e:
